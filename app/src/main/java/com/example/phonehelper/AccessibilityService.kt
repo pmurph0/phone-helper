@@ -1,8 +1,8 @@
 package com.example.phonehelper
 
 import android.accessibilityservice.AccessibilityService
-import android.accessibilityservice.AccessibilityServiceInfo
 import android.accessibilityservice.GestureDescription
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Color
@@ -14,9 +14,6 @@ import android.util.Log
 import android.util.TypedValue
 import android.view.*
 import android.view.accessibility.AccessibilityEvent
-import android.view.accessibility.AccessibilityNodeInfo
-import androidx.drawerlayout.widget.DrawerLayout
-import java.lang.Exception
 import java.util.concurrent.TimeUnit
 
 
@@ -33,6 +30,7 @@ class AccessibilityService : AccessibilityService() {
         addOverlayView()
     }
 
+    @SuppressLint("RtlHardcoded")
     private fun addOverlayView() {
         val view = View(this).apply {
             background = ColorDrawable(Color.WHITE)
@@ -107,24 +105,20 @@ class AccessibilityService : AccessibilityService() {
         log("volume down")
         val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         audioManager.adjustVolume(AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI)
-        //TODO
     }
 
     private fun volumeUp() {
         log("volume up")
         val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         audioManager.adjustVolume(AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI)
-        //TODO
     }
 
     private fun tryOpenNavDrawer() {
-//        tryOpenNavDrawerUsingClick()
         try {
             tryOpenNavDrawerUsingGesture()
         } catch (e:Exception) {
             println(e.message)
         }
-
     }
 
     private fun tryOpenNavDrawerUsingGesture() {
@@ -151,13 +145,11 @@ class AccessibilityService : AccessibilityService() {
             .build()
     }
 
-
-
     private fun buildFinger1Swipe(): GestureDescription.StrokeDescription {
         return GestureDescription.StrokeDescription(
             Path().apply {
-                this.moveTo(0f, dpToPx(300f).toFloat())
-                this.lineTo(gestureEndX, dpToPx(300f).toFloat())
+                this.moveTo(0f, finger1YPos)
+                this.lineTo(gestureEndX, finger1YPos)
             },
             gestureStartDelay,
             TimeUnit.MILLISECONDS.toMillis(gestureDuration)
@@ -167,8 +159,8 @@ class AccessibilityService : AccessibilityService() {
     private fun buildFinger2Swipe(): GestureDescription.StrokeDescription {
         return GestureDescription.StrokeDescription(
             Path().apply {
-                this.moveTo(0f, dpToPx(500f).toFloat())
-                this.lineTo(gestureEndX, dpToPx(500f).toFloat())
+                this.moveTo(0f, finger2YPos)
+                this.lineTo(gestureEndX, finger2YPos)
             },
             gestureStartDelay,
             TimeUnit.MILLISECONDS.toMillis(gestureDuration)
@@ -178,33 +170,6 @@ class AccessibilityService : AccessibilityService() {
     private val gestureStartDelay = 0L
     private val gestureDuration = TimeUnit.MILLISECONDS.toMillis(150L)
     private val gestureEndX get() = dpToPx(500f).toFloat()
-
-    private fun tryOpenNavDrawerUsingClick() {
-        findDrawerLayoutButton(rootInActiveWindow)?.let { node ->
-            log("Attempting click on node...")
-            if (node.isClickable) {
-                log("Performing click on node")
-                node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-            } else {
-                log("node is not clickable!")
-            }
-        }
-    }
-
-    private fun findDrawerLayoutButton(node: AccessibilityNodeInfo): AccessibilityNodeInfo? {
-        if (node.viewIdResourceName == null) log("view id resource name is null") else log(node.viewIdResourceName)
-        if (node.viewIdResourceName?.contains("burger", ignoreCase = true) == true) {
-            log("found drawer trigger view, id is ${node.viewIdResourceName}")
-            return node
-        }
-        if (node.childCount > 0) {
-            for (i in 0 until node.childCount) {
-                val childNode = findDrawerLayoutButton(node.getChild(i))
-                if (childNode != null) return node
-            }
-        }
-        return null
-    }
-
-
+    private val finger1YPos get() = dpToPx(300f).toFloat()
+    private val finger2YPos get() = dpToPx(500f).toFloat()
 }
