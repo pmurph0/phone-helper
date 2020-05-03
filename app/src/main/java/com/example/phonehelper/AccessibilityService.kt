@@ -156,26 +156,28 @@ class AccessibilityService : AccessibilityService() {
     private fun buildFinger1Swipe(): GestureDescription.StrokeDescription {
         return GestureDescription.StrokeDescription(
             Path().apply {
-                this.moveTo(0f, dpToPx(200f).toFloat())
-                this.lineTo(200f, dpToPx(200f).toFloat())
+                this.moveTo(0f, dpToPx(300f).toFloat())
+                this.lineTo(gestureEndX, dpToPx(300f).toFloat())
             },
             gestureStartDelay,
-            TimeUnit.MILLISECONDS.toMillis(300L)
+            TimeUnit.MILLISECONDS.toMillis(gestureDuration)
         )
     }
 
     private fun buildFinger2Swipe(): GestureDescription.StrokeDescription {
         return GestureDescription.StrokeDescription(
             Path().apply {
-                this.moveTo(0f, dpToPx(400f).toFloat())
-                this.lineTo(200f, dpToPx(400f).toFloat())
+                this.moveTo(0f, dpToPx(500f).toFloat())
+                this.lineTo(gestureEndX, dpToPx(500f).toFloat())
             },
             gestureStartDelay,
-            TimeUnit.MILLISECONDS.toMillis(300L)
+            TimeUnit.MILLISECONDS.toMillis(gestureDuration)
         )
     }
 
-    private val gestureStartDelay = 1000L
+    private val gestureStartDelay = 0L
+    private val gestureDuration = 300L
+    private val gestureEndX get() = dpToPx(300f).toFloat()
 
     private fun tryOpenNavDrawerUsingClick() {
         findDrawerLayoutButton(rootInActiveWindow)?.let { node ->
