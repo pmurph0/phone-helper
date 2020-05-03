@@ -28,9 +28,7 @@ class AccessibilityService : AccessibilityService() {
     }
 
     override fun onServiceConnected() {
-        serviceInfo.apply {
-            feedbackType = AccessibilityServiceInfo.CAPABILITY_CAN_PERFORM_GESTURES
-        }
+
         //Add view
         addOverlayView()
     }
