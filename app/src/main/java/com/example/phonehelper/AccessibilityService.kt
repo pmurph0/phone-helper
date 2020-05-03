@@ -1,9 +1,12 @@
 package com.example.phonehelper
 
 import android.accessibilityservice.AccessibilityService
+import android.accessibilityservice.AccessibilityServiceInfo
+import android.accessibilityservice.GestureDescription
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Color
+import android.graphics.Path
 import android.graphics.PixelFormat
 import android.graphics.drawable.ColorDrawable
 import android.media.AudioManager
@@ -13,6 +16,8 @@ import android.view.*
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.drawerlayout.widget.DrawerLayout
+import java.lang.Exception
+import java.util.concurrent.TimeUnit
 
 
 class AccessibilityService : AccessibilityService() {
@@ -23,6 +28,9 @@ class AccessibilityService : AccessibilityService() {
     }
 
     override fun onServiceConnected() {
+        serviceInfo.apply {
+            feedbackType = AccessibilityServiceInfo.CAPABILITY_CAN_PERFORM_GESTURES
+        }
         //Add view
         addOverlayView()
     }
@@ -112,12 +120,80 @@ class AccessibilityService : AccessibilityService() {
     }
 
     private fun tryOpenNavDrawer() {
-        findDrawerLayoutButton(rootInActiveWindow)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+//        tryOpenNavDrawerUsingClick()
+        try {
+            tryOpenNavDrawerUsingGesture()
+        } catch (e:Exception) {
+            println(e.message)
+        }
+
+    }
+
+    private fun tryOpenNavDrawerUsingGesture() {
+        dispatchGesture(
+            buildTwoFingerSwipeGesture(),
+            object: GestureResultCallback() {
+                override fun onCancelled(gestureDescription: GestureDescription?) {
+                    log("gesture cancelled")
+                }
+
+                override fun onCompleted(gestureDescription: GestureDescription?) {
+                    log("gesture completed")
+                }
+            },
+            null).also {gestureDispatched ->
+            log(if (gestureDispatched) "gesture dispatched" else "gesture not dispatched")
+        }
+    }
+
+    private fun buildTwoFingerSwipeGesture(): GestureDescription {
+        return GestureDescription.Builder()
+            .addStroke(buildFinger1Swipe())
+            .addStroke(buildFinger2Swipe())
+            .build()
+    }
+
+
+
+    private fun buildFinger1Swipe(): GestureDescription.StrokeDescription {
+        return GestureDescription.StrokeDescription(
+            Path().apply {
+                this.moveTo(0f, dpToPx(200f).toFloat())
+                this.lineTo(200f, dpToPx(200f).toFloat())
+            },
+            gestureStartDelay,
+            TimeUnit.MILLISECONDS.toMillis(300L)
+        )
+    }
+
+    private fun buildFinger2Swipe(): GestureDescription.StrokeDescription {
+        return GestureDescription.StrokeDescription(
+            Path().apply {
+                this.moveTo(0f, dpToPx(400f).toFloat())
+                this.lineTo(200f, dpToPx(400f).toFloat())
+            },
+            gestureStartDelay,
+            TimeUnit.MILLISECONDS.toMillis(300L)
+        )
+    }
+
+    private val gestureStartDelay = 1000L
+
+    private fun tryOpenNavDrawerUsingClick() {
+        findDrawerLayoutButton(rootInActiveWindow)?.let { node ->
+            log("Attempting click on node...")
+            if (node.isClickable) {
+                log("Performing click on node")
+                node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+            } else {
+                log("node is not clickable!")
+            }
+        }
     }
 
     private fun findDrawerLayoutButton(node: AccessibilityNodeInfo): AccessibilityNodeInfo? {
-        if (node.viewIdResourceName == null) log("view id resource name is null")
-        if (node.viewIdResourceName?.contains("drawer", ignoreCase = true) == true) {
+        if (node.viewIdResourceName == null) log("view id resource name is null") else log(node.viewIdResourceName)
+        if (node.viewIdResourceName?.contains("burger", ignoreCase = true) == true) {
             log("found drawer trigger view, id is ${node.viewIdResourceName}")
             return node
         }
