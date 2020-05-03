@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.graphics.Path
 import android.graphics.PixelFormat
 import android.hardware.biometrics.BiometricPrompt
@@ -26,11 +27,11 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 
-class AccessibilityService : AccessibilityService() {
+open class AccessibilityService : AccessibilityService() {
 
     private val isDeviceLocked: Boolean get() = keyguardManager.isDeviceLocked
 
-    private val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+    private val keyguardManager get() = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
     private val windowManager: WindowManager get() = getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private val audioManager get() = getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
@@ -84,68 +85,15 @@ class AccessibilityService : AccessibilityService() {
 
     private fun shareLastImgInCameraFolder() {
         launchShareIntent()
-        return
-
-        BiometricPrompt.Builder(this)
-            .setTitle("Authenticate to share")
-            .setDeviceCredentialAllowed(true)
-            .build()
-            .authenticate(
-                CancellationSignal(),
-                mainExecutor,
-                object: BiometricPrompt.AuthenticationCallback() {
-                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult?) {
-                        log("onAuthenticationSucceeded")
-                        launchShareIntent()
-                    }
-
-                    override fun onAuthenticationError(errorCode: Int, errString: CharSequence?) {
-                        log("onAuthenticationError: $errString")
-                    }
-
-                    override fun onAuthenticationFailed() {
-                        log("onAuthenticationFailed")
-                    }
-
-                    override fun onAuthenticationHelp(helpCode: Int, helpString: CharSequence?) {
-                        log("onAuthenticationHelp: $helpString")
-                    }
-                })
     }
 
     private fun launchShareIntent() {
-        startActivity(Intent(this, ShareImageActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-
-
-//        val bitmap: Bitmap = ImageDecoder.decodeBitmap(
-//            ImageDecoder.createSource(
-//                this.contentResolver,
-//                getLastImageInCameraFolder(this)!!
-//            )
-//        )
-//        val intent = Intent(Intent.ACTION_SEND)
-//        intent.type = "image/*"
-//        intent.putExtra(Intent.EXTRA_STREAM, getBitmapFromView(bitmap))
-//        startActivity(Intent.createChooser(intent, "Share Image"))
+        startActivity(ShareImageActivity.getIntent(this, getLastImageInCameraFolder(this)!!)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 
-    fun getBitmapFromView(bmp: Bitmap?): Uri? {
-        var bmpUri: Uri? = null
-        try {
-            val file = File(this.externalCacheDir, System.currentTimeMillis().toString() + ".jpg")
-
-            val out = FileOutputStream(file)
-            bmp?.compress(Bitmap.CompressFormat.JPEG, 90, out)
-            out.close()
-            bmpUri = Uri.fromFile(file)
-
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        return bmpUri
-    }
-
-    protected fun getLastImageInCameraFolder(c: Context): Uri? {
+    private fun getLastImageInCameraFolder(c: Context): Uri? {
+        //TODO dont use deprecated APIs
         val resolver = c.contentResolver ?: return null
         val proj = arrayOf(MediaStore.Images.Media.DATA)
         val cursor =
