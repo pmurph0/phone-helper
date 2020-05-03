@@ -18,6 +18,19 @@ import java.util.concurrent.TimeUnit
 
 
 class AccessibilityService : AccessibilityService() {
+
+    private val windowManager: WindowManager get() = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    private val audioManager get() = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+    private val gestureStartDelay = 0L
+    private val gestureDuration = TimeUnit.MILLISECONDS.toMillis(150L)
+    private val gestureEndX get() = dpToPx(700f).toFloat()
+    private val finger1YPos get() = dpToPx(300f).toFloat()
+    private val finger2YPos get() = dpToPx(500f).toFloat()
+    private val gestureStartX get() = touchAreaWidth.toFloat()
+    private val touchAreaHeight: Int get() = dpToPx(600f)
+    private val touchAreaWidth: Int get() = dpToPx(16f)
+
     override fun onInterrupt() {
     }
 
@@ -26,40 +39,50 @@ class AccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
         //Add view
-        addOverlayView()
+        addRightEdgeView()
+        addLeftEdgeView()
     }
 
-    @SuppressLint("RtlHardcoded")
-    private fun addOverlayView() {
-        val view = View(this).apply {
-//            background = ColorDrawable(Color.WHITE)
-        }
-        val windowManager: WindowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    private fun addLeftEdgeView() {
+        val view = View(this)
         windowManager.addView(view, WindowManager.LayoutParams(
-            getTouchAreaWidth(),
-            getTouchAreaHeight(),
+            touchAreaWidth,
+            touchAreaHeight,
             WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-            WindowManager.LayoutParams.FLAG_IGNORE_CHEEK_PRESSES
-            or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            getTouchAreaWindowFlags(),
             PixelFormat.TRANSLUCENT
         ).apply {
-            gravity = Gravity.RIGHT or Gravity.CENTER_VERTICAL
+            gravity = Gravity.LEFT or Gravity.BOTTOM
         })
-        val gestureDetector = GestureDetector(this, gestureListener)
+        val gestureDetector = GestureDetector(this, leftEdgeGestureListener)
         view.setOnTouchListener { _, motionEvent ->
             log("onTouch $motionEvent")
             gestureDetector.onTouchEvent(motionEvent)
         }
     }
 
-    private fun getTouchAreaHeight(): Int {
-        return dpToPx(600f)
+    @SuppressLint("RtlHardcoded")
+    private fun addRightEdgeView() {
+        val view = View(this)
+        windowManager.addView(view, WindowManager.LayoutParams(
+            touchAreaWidth,
+            touchAreaHeight,
+            WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
+            getTouchAreaWindowFlags(),
+            PixelFormat.TRANSLUCENT
+        ).apply {
+            gravity = Gravity.RIGHT or Gravity.CENTER_VERTICAL
+        })
+        val gestureDetector = GestureDetector(this, rightEdgeGestureListener)
+        view.setOnTouchListener { _, motionEvent ->
+            log("onTouch $motionEvent")
+            gestureDetector.onTouchEvent(motionEvent)
+        }
     }
 
-    private fun getTouchAreaWidth(): Int {
-        val dip = 15f
-        return dpToPx(dip)
-    }
+    private fun getTouchAreaWindowFlags() = WindowManager.LayoutParams.FLAG_IGNORE_CHEEK_PRESSES or
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+
 
     private fun dpToPx(dip: Float): Int {
         val r: Resources = resources
@@ -70,7 +93,7 @@ class AccessibilityService : AccessibilityService() {
         ).toInt()
     }
 
-    private val gestureListener = object: GestureDetector.SimpleOnGestureListener() {
+    private val rightEdgeGestureListener = object: GestureDetector.SimpleOnGestureListener() {
         override fun onFling(
             e1: MotionEvent,
             e2: MotionEvent,
@@ -96,46 +119,62 @@ class AccessibilityService : AccessibilityService() {
         }
     }
 
+    private val leftEdgeGestureListener = object: GestureDetector.SimpleOnGestureListener() {
+        override fun onFling(
+            e1: MotionEvent,
+            e2: MotionEvent,
+            velocityX: Float,
+            velocityY: Float
+        ): Boolean {
+            log("onFling")
+            //TODO reject drag by checking velocity
+            if (e1.y > e2.y) {
+                tryOpenNavDrawer()
+            }
+            return true
+        }
+
+        override fun onDoubleTap(e: MotionEvent?): Boolean {
+            log("onDoubleTap")
+            tryOpenNavDrawer()
+            return true
+        }
+    }
+
     private fun log(msg: String?) {
         if (msg != null) Log.d(com.example.phonehelper.AccessibilityService::class.java.simpleName, msg)
     }
 
     private fun volumeDown() {
         log("volume down")
-        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         audioManager.adjustVolume(AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI)
     }
 
     private fun volumeUp() {
         log("volume up")
-        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         audioManager.adjustVolume(AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI)
     }
 
     private fun tryOpenNavDrawer() {
         try {
-            tryOpenNavDrawerUsingGesture()
+            dispatchGesture(
+                buildTwoFingerSwipeGesture(),
+                object: GestureResultCallback() {
+                    override fun onCancelled(gestureDescription: GestureDescription?) {
+                        log("gesture cancelled")
+                    }
+                    override fun onCompleted(gestureDescription: GestureDescription?) {
+                        log("gesture completed")
+                    }
+                },
+                null).also { gestureDispatched ->
+                log(if (gestureDispatched) "gesture dispatched" else "gesture not dispatched")
+            }
         } catch (e:Exception) {
             println(e.message)
         }
     }
 
-    private fun tryOpenNavDrawerUsingGesture() {
-        dispatchGesture(
-            buildTwoFingerSwipeGesture(),
-            object: GestureResultCallback() {
-                override fun onCancelled(gestureDescription: GestureDescription?) {
-                    log("gesture cancelled")
-                }
-
-                override fun onCompleted(gestureDescription: GestureDescription?) {
-                    log("gesture completed")
-                }
-            },
-            null).also {gestureDispatched ->
-            log(if (gestureDispatched) "gesture dispatched" else "gesture not dispatched")
-        }
-    }
 
     private fun buildTwoFingerSwipeGesture(): GestureDescription {
         return GestureDescription.Builder()
@@ -147,7 +186,7 @@ class AccessibilityService : AccessibilityService() {
     private fun buildFinger1Swipe(): GestureDescription.StrokeDescription {
         return GestureDescription.StrokeDescription(
             Path().apply {
-                this.moveTo(0f, finger1YPos)
+                this.moveTo(gestureStartX, finger1YPos)
                 this.lineTo(gestureEndX, finger1YPos)
             },
             gestureStartDelay,
@@ -158,17 +197,11 @@ class AccessibilityService : AccessibilityService() {
     private fun buildFinger2Swipe(): GestureDescription.StrokeDescription {
         return GestureDescription.StrokeDescription(
             Path().apply {
-                this.moveTo(0f, finger2YPos)
+                this.moveTo(gestureStartX, finger2YPos)
                 this.lineTo(gestureEndX, finger2YPos)
             },
             gestureStartDelay,
             TimeUnit.MILLISECONDS.toMillis(gestureDuration)
         )
     }
-
-    private val gestureStartDelay = 0L
-    private val gestureDuration = TimeUnit.MILLISECONDS.toMillis(150L)
-    private val gestureEndX get() = dpToPx(700f).toFloat()
-    private val finger1YPos get() = dpToPx(300f).toFloat()
-    private val finger2YPos get() = dpToPx(500f).toFloat()
 }
