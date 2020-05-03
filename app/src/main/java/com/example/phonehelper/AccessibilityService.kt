@@ -176,8 +176,8 @@ class AccessibilityService : AccessibilityService() {
     }
 
     private val gestureStartDelay = 0L
-    private val gestureDuration = 300L
-    private val gestureEndX get() = dpToPx(300f).toFloat()
+    private val gestureDuration = TimeUnit.MILLISECONDS.toMillis(150L)
+    private val gestureEndX get() = dpToPx(500f).toFloat()
 
     private fun tryOpenNavDrawerUsingClick() {
         findDrawerLayoutButton(rootInActiveWindow)?.let { node ->
