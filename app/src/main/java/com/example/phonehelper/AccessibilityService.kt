@@ -33,25 +33,32 @@ class AccessibilityService : AccessibilityService() {
         val windowManager: WindowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         windowManager.addView(view, WindowManager.LayoutParams(
             getTouchAreaWidth(),
-            WindowManager.LayoutParams.MATCH_PARENT,
+            getTouchAreaHeight(),
             WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
             WindowManager.LayoutParams.FLAG_IGNORE_CHEEK_PRESSES
             or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
             or FLAG_SHOW_WHEN_LOCKED,
             PixelFormat.TRANSLUCENT
         ).apply {
-            gravity = Gravity.RIGHT
+            gravity = Gravity.RIGHT or Gravity.CENTER_VERTICAL
         })
         val gestureDetector = GestureDetector(this, gestureListener)
         view.setOnTouchListener { _, motionEvent ->
             log("onTouch $motionEvent")
             gestureDetector.onTouchEvent(motionEvent)
-            true
         }
     }
 
+    private fun getTouchAreaHeight(): Int {
+        return dpToPx(600f)
+    }
+
     private fun getTouchAreaWidth(): Int {
-        val dip = 15f
+        val dip = 20f
+        return dpToPx(dip)
+    }
+
+    private fun dpToPx(dip: Float): Int {
         val r: Resources = resources
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
@@ -92,18 +99,19 @@ class AccessibilityService : AccessibilityService() {
     private fun volumeDown() {
         log("volume down")
         val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        audioManager.adjustVolume(AudioManager.ADJUST_LOWER, AudioManager.FLAG_PLAY_SOUND);
+        audioManager.adjustVolume(AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI)
         //TODO
     }
 
     private fun volumeUp() {
         log("volume up")
         val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        audioManager.adjustVolume(AudioManager.ADJUST_RAISE, AudioManager.FLAG_PLAY_SOUND);
+        audioManager.adjustVolume(AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI)
         //TODO
     }
 
     private fun tryOpenNavDrawer() {
         log("open nav drawer")
+
     }
 }
