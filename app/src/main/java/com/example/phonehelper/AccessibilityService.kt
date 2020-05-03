@@ -6,6 +6,7 @@ import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.drawable.ColorDrawable
+import android.media.AudioManager
 import android.util.Log
 import android.util.TypedValue
 import android.view.*
@@ -43,6 +44,7 @@ class AccessibilityService : AccessibilityService() {
         })
         val gestureDetector = GestureDetector(this, gestureListener)
         view.setOnTouchListener { _, motionEvent ->
+            log("onTouch $motionEvent")
             gestureDetector.onTouchEvent(motionEvent)
             true
         }
@@ -65,6 +67,7 @@ class AccessibilityService : AccessibilityService() {
             velocityX: Float,
             velocityY: Float
         ): Boolean {
+
             log("onFling")
             if (e1.y > e2.y) {
                 //fling up
@@ -76,7 +79,7 @@ class AccessibilityService : AccessibilityService() {
             return true
         }
 
-        override fun onDoubleTapEvent(e: MotionEvent?): Boolean {
+        override fun onDoubleTap(e: MotionEvent?): Boolean {
             tryOpenNavDrawer()
             return true
         }
@@ -88,11 +91,15 @@ class AccessibilityService : AccessibilityService() {
 
     private fun volumeDown() {
         log("volume down")
+        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        audioManager.adjustVolume(AudioManager.ADJUST_LOWER, AudioManager.FLAG_PLAY_SOUND);
         //TODO
     }
 
     private fun volumeUp() {
         log("volume up")
+        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        audioManager.adjustVolume(AudioManager.ADJUST_RAISE, AudioManager.FLAG_PLAY_SOUND);
         //TODO
     }
 
