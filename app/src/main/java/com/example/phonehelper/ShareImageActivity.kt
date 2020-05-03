@@ -7,6 +7,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toFile
 import java.io.File
@@ -52,13 +53,22 @@ class ShareImageActivity: Activity() {
     private fun launchShareIntent() {
         val intent = Intent(Intent.ACTION_SEND)
 
-        val apkURI = FileProvider.getUriForFile(
+        val shareableUri = FileProvider.getUriForFile(
             this, this.getApplicationContext()
                 .getPackageName().toString() + ".provider", uri.toFile()
         )
-        intent.setDataAndType(apkURI, "image/*")
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        startActivity(Intent.createChooser(intent, "Share Image"))
+//        intent.setDataAndType(shareableUri, "image/*")
+//        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+//        startActivity(Intent.createChooser(intent, "Share Image"))
+//
+
+        val shareIntent = ShareCompat.IntentBuilder.from(this)
+            .setStream(shareableUri)
+            .intent
+        shareIntent.data = shareableUri
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        shareIntent.type = "image/jpeg"
+        startActivity(Intent.createChooser(shareIntent, "Share image"))
     }
 
     val uri: Uri get() {

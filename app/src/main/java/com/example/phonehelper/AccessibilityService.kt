@@ -7,23 +7,14 @@ import android.app.KeyguardManager
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
 import android.graphics.Path
 import android.graphics.PixelFormat
-import android.hardware.biometrics.BiometricPrompt
 import android.media.AudioManager
-import android.net.Uri
-import android.os.CancellationSignal
-import android.provider.MediaStore
 import android.util.Log
 import android.util.TypedValue
 import android.view.*
 import android.view.accessibility.AccessibilityEvent
 import android.widget.ImageView
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 
