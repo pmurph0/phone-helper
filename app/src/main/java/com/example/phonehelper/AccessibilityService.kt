@@ -3,22 +3,26 @@ package com.example.phonehelper
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription
 import android.annotation.SuppressLint
+import android.app.KeyguardManager
 import android.content.Context
 import android.content.res.Resources
-import android.graphics.Color
 import android.graphics.Path
 import android.graphics.PixelFormat
-import android.graphics.drawable.ColorDrawable
 import android.media.AudioManager
 import android.util.Log
 import android.util.TypedValue
 import android.view.*
 import android.view.accessibility.AccessibilityEvent
+import android.widget.Toast
 import java.util.concurrent.TimeUnit
 
 
 class AccessibilityService : AccessibilityService() {
 
+    private val isDeviceLocked: Boolean get() {
+        val myKM = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+        return (myKM.isDeviceLocked)
+    }
     private val windowManager: WindowManager get() = getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private val audioManager get() = getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
@@ -35,6 +39,22 @@ class AccessibilityService : AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
+        log("onAccessibilityEvent")
+        log(event.toString())
+        when {
+            event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
+                    && (event.packageName == "com.oneplus.gallery")
+                    && isDeviceLocked-> tryShowShareBtn()
+        }
+    }
+
+    private fun tryShowShareBtn() {
+        log("tryShowShareBtn")
+        addShareBtn()
+    }
+
+    private fun addShareBtn() {
+        //TODO
     }
 
     override fun onServiceConnected() {
