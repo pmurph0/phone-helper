@@ -83,6 +83,9 @@ class AccessibilityService : AccessibilityService() {
 
 
     private fun shareLastImgInCameraFolder() {
+        launchShareIntent()
+        return
+
         BiometricPrompt.Builder(this)
             .setTitle("Authenticate to share")
             .setDeviceCredentialAllowed(true)
@@ -111,16 +114,7 @@ class AccessibilityService : AccessibilityService() {
     }
 
     private fun launchShareIntent() {
-        val sendIntent: Intent = Intent().apply {
-            action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, "This is my text to send.")
-            type = "text/plain"
-        }
-
-        val shareIntent = Intent.createChooser(sendIntent, null)
-        startActivity(shareIntent.apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        })
+        startActivity(Intent(this, ShareImageActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
 
 
 //        val bitmap: Bitmap = ImageDecoder.decodeBitmap(
