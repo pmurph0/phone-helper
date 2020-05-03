@@ -87,13 +87,14 @@ class AccessibilityService : AccessibilityService() {
         }
 
         override fun onDoubleTap(e: MotionEvent?): Boolean {
+            log("onDoubleTap")
             tryOpenNavDrawer()
             return true
         }
     }
 
-    private fun log(msg: String) {
-        Log.d(com.example.phonehelper.AccessibilityService::class.java.simpleName, msg)
+    private fun log(msg: String?) {
+        if (msg != null) Log.d(com.example.phonehelper.AccessibilityService::class.java.simpleName, msg)
     }
 
     private fun volumeDown() {
@@ -111,13 +112,13 @@ class AccessibilityService : AccessibilityService() {
     }
 
     private fun tryOpenNavDrawer() {
-        log("open nav drawer")
         findDrawerLayoutButton(rootInActiveWindow)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
     }
 
     private fun findDrawerLayoutButton(node: AccessibilityNodeInfo): AccessibilityNodeInfo? {
-        if (node.className.contains("DrawerLayout")) {
-            log("found drawer layout")
+        if (node.viewIdResourceName == null) log("view id resource name is null")
+        if (node.viewIdResourceName?.contains("drawer", ignoreCase = true) == true) {
+            log("found drawer trigger view, id is ${node.viewIdResourceName}")
             return node
         }
         if (node.childCount > 0) {
