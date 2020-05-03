@@ -10,8 +10,9 @@ import android.media.AudioManager
 import android.util.Log
 import android.util.TypedValue
 import android.view.*
-import android.view.WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityNodeInfo
+import androidx.drawerlayout.widget.DrawerLayout
 
 
 class AccessibilityService : AccessibilityService() {
@@ -73,8 +74,8 @@ class AccessibilityService : AccessibilityService() {
             velocityX: Float,
             velocityY: Float
         ): Boolean {
-
             log("onFling")
+            //TODO reject drag by checking velocity
             if (e1.y > e2.y) {
                 //fling up
                 volumeUp()
@@ -111,6 +112,22 @@ class AccessibilityService : AccessibilityService() {
 
     private fun tryOpenNavDrawer() {
         log("open nav drawer")
-
+        findDrawerLayoutButton(rootInActiveWindow)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
     }
+
+    private fun findDrawerLayoutButton(node: AccessibilityNodeInfo): AccessibilityNodeInfo? {
+        if (node.className.contains("DrawerLayout")) {
+            log("found drawer layout")
+            return node
+        }
+        if (node.childCount > 0) {
+            for (i in 0 until node.childCount) {
+                val childNode = findDrawerLayoutButton(node.getChild(i))
+                if (childNode != null) return node
+            }
+        }
+        return null
+    }
+
+
 }
