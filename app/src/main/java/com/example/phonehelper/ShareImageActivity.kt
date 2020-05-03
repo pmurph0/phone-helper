@@ -4,15 +4,12 @@ import android.app.Activity
 import android.app.KeyguardManager
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import androidx.core.content.FileProvider
 import androidx.core.net.toFile
 import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
 
 
 class ShareImageActivity: Activity() {
@@ -23,6 +20,9 @@ class ShareImageActivity: Activity() {
             return Intent(context, ShareImageActivity::class.java).apply {
                 putExtra(EXTRA_IMAGE_URI, imageUri)
             }
+        }
+        fun getIntent(context: Context): Intent {
+            return Intent(context, ShareImageActivity::class.java)
         }
     }
 
@@ -36,40 +36,20 @@ class ShareImageActivity: Activity() {
 
     private fun unlockPhone() {
         val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-        keyguardManager.requestDismissKeyguard(
-            this,
-            object : KeyguardManager.KeyguardDismissCallback() {
-                override fun onDismissSucceeded() {
-                    launchShareIntent()
-                }
-            })
+        if (keyguardManager.isDeviceLocked) {
+            keyguardManager.requestDismissKeyguard(
+                this,
+                object : KeyguardManager.KeyguardDismissCallback() {
+                    override fun onDismissSucceeded() {
+                        launchShareIntent()
+                    }
+                })
+        } else {
+            launchShareIntent()
+        }
     }
 
     private fun launchShareIntent() {
-//        val sendIntent: Intent = Intent().apply {
-//            action = Intent.ACTION_SEND
-//            putExtra(Intent.EXTRA_TEXT, "This is my text to send.")
-//            type = "text/plain"
-//        }
-//
-//        val shareIntent = Intent.createChooser(sendIntent, null)
-//        startActivity(shareIntent.apply {
-//            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-//        })
-
-
-        val bitmap: Bitmap = ImageDecoder.decodeBitmap(
-            ImageDecoder.createSource(
-                this.contentResolver,
-                intent.getParcelableExtra(EXTRA_IMAGE_URI) as Uri
-            )
-        )
-//        val intent = Intent(Intent.ACTION_SEND)
-//        intent.type = "image/*"
-//        intent.putExtra(Intent.EXTRA_STREAM, getBitmapFromView(bitmap))
-//        startActivity(Intent.createChooser(intent, "Share Image"))
-
-
         val intent = Intent(Intent.ACTION_SEND)
 
         val apkURI = FileProvider.getUriForFile(
@@ -81,21 +61,25 @@ class ShareImageActivity: Activity() {
         startActivity(Intent.createChooser(intent, "Share Image"))
     }
 
-    val uri: Uri get() = intent.getParcelableExtra<Uri>(EXTRA_IMAGE_URI) as Uri
-
-    fun getBitmapFromView(bmp: Bitmap?): Uri? {
-        var bmpUri: Uri? = null
-        try {
-            val file = File(this.externalCacheDir, System.currentTimeMillis().toString() + ".jpg")
-
-            val out = FileOutputStream(file)
-            bmp?.compress(Bitmap.CompressFormat.JPEG, 90, out)
-            out.close()
-            bmpUri = Uri.fromFile(file)
-
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        return bmpUri
+    val uri: Uri get() {
+        return intent.getParcelableExtra<Uri>(EXTRA_IMAGE_URI) ?: getLastImageInCameraFolder(this)!!
     }
+
+    private fun getLastImageInCameraFolder(c: Context): Uri? {
+        //TODO dont use deprecated APIs
+        val resolver = c.contentResolver ?: return null
+        val proj = arrayOf(MediaStore.Images.Media.DATA)
+        val cursor =
+            resolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, proj, null, null, "date_modified DESC")
+        val count = cursor!!.count
+        val position = 0
+        if (!cursor.moveToPosition(position)) {
+            return null
+        }
+        val column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+        val path = cursor.getString(column_index)
+        cursor.close()
+        return Uri.fromFile(File(path))
+    }
+
 }

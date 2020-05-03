@@ -59,6 +59,13 @@ open class AccessibilityService : AccessibilityService() {
         }
     }
 
+    override fun onServiceConnected() {
+        //Add view
+        addRightEdgeView()
+        addLeftEdgeView()
+        tryShowShareBtn()
+    }
+
     private fun tryShowShareBtn() {
         log("tryShowShareBtn")
         addShareBtn()
@@ -88,31 +95,8 @@ open class AccessibilityService : AccessibilityService() {
     }
 
     private fun launchShareIntent() {
-        startActivity(ShareImageActivity.getIntent(this, getLastImageInCameraFolder(this)!!)
+        startActivity(ShareImageActivity.getIntent(this)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-    }
-
-    private fun getLastImageInCameraFolder(c: Context): Uri? {
-        //TODO dont use deprecated APIs
-        val resolver = c.contentResolver ?: return null
-        val proj = arrayOf(MediaStore.Images.Media.DATA)
-        val cursor =
-            resolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, proj, null, null, null)
-        val count = cursor!!.count
-        val position = 0
-        if (!cursor.moveToPosition(position)) {
-            return null
-        }
-        val column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-        val path = cursor.getString(column_index)
-        cursor.close()
-        return Uri.fromFile(File(path))
-    }
-
-    override fun onServiceConnected() {
-        //Add view
-        addRightEdgeView()
-        addLeftEdgeView()
     }
 
     private fun addLeftEdgeView() {
