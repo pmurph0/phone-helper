@@ -25,7 +25,6 @@ class AccessibilityService : AccessibilityService() {
     }
 
     override fun onServiceConnected() {
-
         //Add view
         addOverlayView()
     }
@@ -33,7 +32,7 @@ class AccessibilityService : AccessibilityService() {
     @SuppressLint("RtlHardcoded")
     private fun addOverlayView() {
         val view = View(this).apply {
-            background = ColorDrawable(Color.WHITE)
+//            background = ColorDrawable(Color.WHITE)
         }
         val windowManager: WindowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         windowManager.addView(view, WindowManager.LayoutParams(
@@ -58,7 +57,7 @@ class AccessibilityService : AccessibilityService() {
     }
 
     private fun getTouchAreaWidth(): Int {
-        val dip = 20f
+        val dip = 15f
         return dpToPx(dip)
     }
 
@@ -169,7 +168,7 @@ class AccessibilityService : AccessibilityService() {
 
     private val gestureStartDelay = 0L
     private val gestureDuration = TimeUnit.MILLISECONDS.toMillis(150L)
-    private val gestureEndX get() = dpToPx(500f).toFloat()
+    private val gestureEndX get() = dpToPx(700f).toFloat()
     private val finger1YPos get() = dpToPx(300f).toFloat()
     private val finger2YPos get() = dpToPx(500f).toFloat()
 }
