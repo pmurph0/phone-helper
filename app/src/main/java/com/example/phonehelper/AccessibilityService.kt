@@ -36,8 +36,7 @@ class AccessibilityService : AccessibilityService() {
             getTouchAreaHeight(),
             WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
             WindowManager.LayoutParams.FLAG_IGNORE_CHEEK_PRESSES
-            or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-            or FLAG_SHOW_WHEN_LOCKED,
+            or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             PixelFormat.TRANSLUCENT
         ).apply {
             gravity = Gravity.RIGHT or Gravity.CENTER_VERTICAL
