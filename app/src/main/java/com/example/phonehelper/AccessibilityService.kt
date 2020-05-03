@@ -5,24 +5,32 @@ import android.accessibilityservice.GestureDescription
 import android.annotation.SuppressLint
 import android.app.KeyguardManager
 import android.content.Context
+import android.content.Intent
 import android.content.res.Resources
+import android.graphics.Bitmap
 import android.graphics.Path
 import android.graphics.PixelFormat
+import android.hardware.biometrics.BiometricPrompt
 import android.media.AudioManager
+import android.net.Uri
+import android.os.CancellationSignal
+import android.provider.MediaStore
 import android.util.Log
 import android.util.TypedValue
 import android.view.*
 import android.view.accessibility.AccessibilityEvent
-import android.widget.Toast
+import android.widget.ImageView
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 
 class AccessibilityService : AccessibilityService() {
 
-    private val isDeviceLocked: Boolean get() {
-        val myKM = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-        return (myKM.isDeviceLocked)
-    }
+    private val isDeviceLocked: Boolean get() = keyguardManager.isDeviceLocked
+
+    private val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
     private val windowManager: WindowManager get() = getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private val audioManager get() = getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
@@ -34,6 +42,8 @@ class AccessibilityService : AccessibilityService() {
     private val gestureStartX get() = touchAreaWidth.toFloat()
     private val touchAreaHeight: Int get() = dpToPx(600f)
     private val touchAreaWidth: Int get() = dpToPx(16f)
+    private val shareBtnWidth: Int get() = dpToPx(24f)
+    private val shareBtnHeight: Int get() = dpToPx(24f)
 
     override fun onInterrupt() {
     }
@@ -54,7 +64,107 @@ class AccessibilityService : AccessibilityService() {
     }
 
     private fun addShareBtn() {
-        //TODO
+        val view = ImageView(this).apply {
+            setImageResource(R.drawable.ic_share_black_24dp)
+        }
+        windowManager.addView(view, WindowManager.LayoutParams(
+            shareBtnWidth,
+            shareBtnHeight,
+            WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
+            getTouchAreaWindowFlags(),
+            PixelFormat.TRANSLUCENT
+        ).apply {
+            gravity = Gravity.RIGHT or Gravity.BOTTOM
+        })
+        view.setOnClickListener {
+            shareLastImgInCameraFolder()
+        }
+    }
+
+
+    private fun shareLastImgInCameraFolder() {
+        BiometricPrompt.Builder(this)
+            .setTitle("Authenticate to share")
+            .setDeviceCredentialAllowed(true)
+            .build()
+            .authenticate(
+                CancellationSignal(),
+                mainExecutor,
+                object: BiometricPrompt.AuthenticationCallback() {
+                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult?) {
+                        log("onAuthenticationSucceeded")
+                        launchShareIntent()
+                    }
+
+                    override fun onAuthenticationError(errorCode: Int, errString: CharSequence?) {
+                        log("onAuthenticationError: $errString")
+                    }
+
+                    override fun onAuthenticationFailed() {
+                        log("onAuthenticationFailed")
+                    }
+
+                    override fun onAuthenticationHelp(helpCode: Int, helpString: CharSequence?) {
+                        log("onAuthenticationHelp: $helpString")
+                    }
+                })
+    }
+
+    private fun launchShareIntent() {
+        val sendIntent: Intent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, "This is my text to send.")
+            type = "text/plain"
+        }
+
+        val shareIntent = Intent.createChooser(sendIntent, null)
+        startActivity(shareIntent.apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        })
+
+
+//        val bitmap: Bitmap = ImageDecoder.decodeBitmap(
+//            ImageDecoder.createSource(
+//                this.contentResolver,
+//                getLastImageInCameraFolder(this)!!
+//            )
+//        )
+//        val intent = Intent(Intent.ACTION_SEND)
+//        intent.type = "image/*"
+//        intent.putExtra(Intent.EXTRA_STREAM, getBitmapFromView(bitmap))
+//        startActivity(Intent.createChooser(intent, "Share Image"))
+    }
+
+    fun getBitmapFromView(bmp: Bitmap?): Uri? {
+        var bmpUri: Uri? = null
+        try {
+            val file = File(this.externalCacheDir, System.currentTimeMillis().toString() + ".jpg")
+
+            val out = FileOutputStream(file)
+            bmp?.compress(Bitmap.CompressFormat.JPEG, 90, out)
+            out.close()
+            bmpUri = Uri.fromFile(file)
+
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return bmpUri
+    }
+
+    protected fun getLastImageInCameraFolder(c: Context): Uri? {
+        val resolver = c.contentResolver ?: return null
+        val proj = arrayOf(MediaStore.Images.Media.DATA)
+        val cursor =
+            resolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, proj, null, null, null)
+        val count = cursor!!.count
+        val position = 0
+        if (!cursor.moveToPosition(position)) {
+            return null
+        }
+        val column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+        val path = cursor.getString(column_index)
+        cursor.close()
+        return Uri.fromFile(File(path))
     }
 
     override fun onServiceConnected() {
