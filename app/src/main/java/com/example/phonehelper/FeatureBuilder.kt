@@ -41,7 +41,8 @@ class FeatureBuilder(
 enum class Gesture {
     FLING_UP,
     FLING_DOWN,
-    SCRUB
+    SCRUB,
+    DOUBLE_TAP
 }
 enum class Edge {
     LEFT,

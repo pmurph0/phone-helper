@@ -46,6 +46,7 @@ class Preferences(private val context: Context) {
             FLING_UP -> Action.OPEN_NAV_DRAWER
             FLING_DOWN -> null
             SCRUB -> null
+            DOUBLE_TAP -> null
         }
     }
 
@@ -55,16 +56,8 @@ class Preferences(private val context: Context) {
             FLING_UP -> Action.VOLUME_UP
             FLING_DOWN -> Action.VOLUME_DOWN
             SCRUB -> null
+            DOUBLE_TAP -> Action.OPEN_NAV_DRAWER
         }
-    }
-
-    private fun dpToPx(dip: Int): Int {
-        val r: Resources = context.resources
-        return TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            dip.toFloat(),
-            r.displayMetrics
-        ).toInt()
     }
 
 }

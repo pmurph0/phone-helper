@@ -23,6 +23,11 @@ abstract class GestureListener(context: Context) {
             }
             return true
         }
+
+        override fun onDoubleTap(e: MotionEvent?): Boolean {
+            onGesture(Gesture.DOUBLE_TAP)
+            return super.onDoubleTap(e)
+        }
     }
 
     private val gestureDetector = GestureDetector(context, onGestureListener)
