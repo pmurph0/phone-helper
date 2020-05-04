@@ -31,11 +31,15 @@ class ShareImageActivity: Activity() {
         super.onCreate(savedInstanceState)
         setShowWhenLocked(true)
         setTurnScreenOn(true)
-        unlockPhone()
-
+        displayImage()
+        unlockPhoneAndLaunchShareIntent()
     }
 
-    private fun unlockPhone() {
+    private fun displayImage() {
+        //TODO
+    }
+
+    private fun unlockPhoneAndLaunchShareIntent() {
         val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         if (keyguardManager.isDeviceLocked) {
             keyguardManager.requestDismissKeyguard(
@@ -51,17 +55,10 @@ class ShareImageActivity: Activity() {
     }
 
     private fun launchShareIntent() {
-        val intent = Intent(Intent.ACTION_SEND)
-
         val shareableUri = FileProvider.getUriForFile(
-            this, this.getApplicationContext()
-                .getPackageName().toString() + ".provider", uri.toFile()
+            this, this.applicationContext
+                .packageName.toString() + ".provider", uri.toFile()
         )
-//        intent.setDataAndType(shareableUri, "image/*")
-//        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-//        startActivity(Intent.createChooser(intent, "Share Image"))
-//
-
         val shareIntent = ShareCompat.IntentBuilder.from(this)
             .setStream(shareableUri)
             .intent
@@ -72,22 +69,22 @@ class ShareImageActivity: Activity() {
     }
 
     val uri: Uri get() {
-        return intent.getParcelableExtra<Uri>(EXTRA_IMAGE_URI) ?: getLastImageInCameraFolder(this)!!
+        return getLastImageInCameraFolder(this)!!
     }
 
     private fun getLastImageInCameraFolder(c: Context): Uri? {
         //TODO dont use deprecated APIs
         val resolver = c.contentResolver ?: return null
         val proj = arrayOf(MediaStore.Images.Media.DATA)
-        val cursor =
-            resolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, proj, null, null, "date_modified DESC")
-        val count = cursor!!.count
+        val cursor = resolver
+            .query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, proj, null, null, "date_modified DESC")!!
         val position = 0
         if (!cursor.moveToPosition(position)) {
+            cursor.close()
             return null
         }
-        val column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-        val path = cursor.getString(column_index)
+        val columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+        val path = cursor.getString(columnIndex)
         cursor.close()
         return Uri.fromFile(File(path))
     }

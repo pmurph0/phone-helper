@@ -10,7 +10,9 @@ import android.content.res.Resources
 import android.graphics.Path
 import android.graphics.PixelFormat
 import android.media.AudioManager
+import android.util.DisplayMetrics
 import android.util.Log
+import android.util.Size
 import android.util.TypedValue
 import android.view.*
 import android.view.accessibility.AccessibilityEvent
@@ -36,6 +38,14 @@ open class AccessibilityService : AccessibilityService() {
     private val touchAreaWidth: Int get() = dpToPx(16f)
     private val shareBtnWidth: Int get() = dpToPx(24f)
     private val shareBtnHeight: Int get() = dpToPx(24f)
+    private val shareBtnMarginBottom get() = dpToPx(45f)
+    private val shareBtnMarginRight get() = dpToPx(70f)
+
+    val screenSize by lazy {
+        val displayMetrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
+        return@lazy Size(displayMetrics.widthPixels, displayMetrics.heightPixels)
+    }
 
     override fun onInterrupt() {
     }
@@ -54,7 +64,6 @@ open class AccessibilityService : AccessibilityService() {
         //Add view
         addRightEdgeView()
         addLeftEdgeView()
-        tryShowShareBtn()
     }
 
     private fun tryShowShareBtn() {
@@ -65,17 +74,24 @@ open class AccessibilityService : AccessibilityService() {
     private fun addShareBtn() {
         val view = ImageView(this).apply {
             setImageResource(R.drawable.ic_share_black_24dp)
+            val outValue = TypedValue()
+            context.theme
+                .resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, outValue, true)
+            foreground = getDrawable(outValue.resourceId)
         }
+        val xPos = (screenSize.width / 2) - shareBtnMarginRight
+        val yPos = (screenSize.height / 2) - shareBtnMarginBottom
         windowManager.addView(view, WindowManager.LayoutParams(
             shareBtnWidth,
             shareBtnHeight,
+            xPos,
+            yPos,
             WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
             getTouchAreaWindowFlags(),
             PixelFormat.TRANSLUCENT
-        ).apply {
-            gravity = Gravity.RIGHT or Gravity.BOTTOM
-        })
+        ))
         view.setOnClickListener {
+            it.visibility = View.GONE
             shareLastImgInCameraFolder()
         }
     }
