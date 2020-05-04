@@ -35,10 +35,10 @@ class Preferences(private val context: Context) {
         get() = 600.toPx(context)
 
     val leftEdgeYPos: Int
-        get() = (context.screenSize.height) - leftEdgeHeight//TODO
+        get() = context.screenSize.height - leftEdgeHeight  //TODO
 
     val rightEdgeYPos: Int
-        get() = (context.screenSize.height/2) - (rightEdgeHeight/2)//TODO
+        get() = 0   //TODO
 
     fun getLeftEdgeAction(gesture: Gesture): Action? {
         //TODO
