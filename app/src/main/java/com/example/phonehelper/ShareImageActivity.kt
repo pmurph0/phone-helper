@@ -12,7 +12,7 @@ import androidx.core.content.FileProvider
 import androidx.core.net.toFile
 import java.io.File
 
-
+//TODO tidy
 class ShareImageActivity: Activity() {
 
     companion object {
