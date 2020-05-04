@@ -29,13 +29,13 @@ class Preferences(private val context: Context) {
         get() = if (isRightEdgeEnabled) DEFAULT_EDGE_WIDTH else 0 //TODO
 
     val rightEdgeHeight: Int
-        get() = dpToPx(600)//TODO
+        get() = 600.toPx(context)
 
     val leftEdgeHeight: Int
-        get() = dpToPx(600)//TODO
+        get() = 600.toPx(context)
 
     val leftEdgeYPos: Int
-        get() = (context.screenSize.height/2) - leftEdgeHeight//TODO
+        get() = (context.screenSize.height) - leftEdgeHeight//TODO
 
     val rightEdgeYPos: Int
         get() = (context.screenSize.height/2) - (rightEdgeHeight/2)//TODO
