@@ -1,4 +1,4 @@
-package com.example.phonehelper
+package com.example.phonehelper.features.edge
 
 interface EdgeFeature {
     fun onActionTriggered()

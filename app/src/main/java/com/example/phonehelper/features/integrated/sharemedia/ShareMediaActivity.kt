@@ -1,4 +1,4 @@
-package com.example.phonehelper
+package com.example.phonehelper.features.integrated.sharemedia
 
 import android.app.Activity
 import android.app.KeyguardManager
@@ -13,17 +13,17 @@ import androidx.core.net.toFile
 import java.io.File
 
 //TODO tidy
-class ShareImageActivity: Activity() {
+class ShareMediaActivity: Activity() {
 
     companion object {
         const val EXTRA_IMAGE_URI = "EXTRA_IMAGE_URI"
         fun getIntent(context: Context, imageUri: Uri): Intent {
-            return Intent(context, ShareImageActivity::class.java).apply {
+            return Intent(context, ShareMediaActivity::class.java).apply {
                 putExtra(EXTRA_IMAGE_URI, imageUri)
             }
         }
         fun getIntent(context: Context): Intent {
-            return Intent(context, ShareImageActivity::class.java)
+            return Intent(context, ShareMediaActivity::class.java)
         }
     }
 

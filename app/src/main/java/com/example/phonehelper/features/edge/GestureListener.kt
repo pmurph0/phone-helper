@@ -1,9 +1,10 @@
-package com.example.phonehelper
+package com.example.phonehelper.features.edge
 
 import android.content.Context
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import com.example.phonehelper.features.Gesture
 
 abstract class GestureListener(context: Context) {
 

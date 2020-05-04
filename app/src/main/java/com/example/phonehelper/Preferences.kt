@@ -1,9 +1,9 @@
 package com.example.phonehelper
 
 import android.content.Context
-import android.content.res.Resources
-import android.util.TypedValue
-import com.example.phonehelper.Gesture.*
+import com.example.phonehelper.features.Action
+import com.example.phonehelper.features.Gesture
+import com.example.phonehelper.features.Gesture.*
 
 class Preferences(private val context: Context) {
 

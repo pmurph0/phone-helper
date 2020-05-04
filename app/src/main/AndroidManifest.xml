@@ -22,7 +22,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ShareImageActivity" />
+        <activity android:name="com.example.phonehelper.features.integrated.sharemedia.ShareMediaActivity" />
 
         <service
             android:name=".AccessibilityService"

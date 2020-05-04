@@ -1,4 +1,4 @@
-package com.example.phonehelper
+package com.example.phonehelper.features.integrated.sharemedia
 
 import android.accessibilityservice.AccessibilityService
 import android.app.KeyguardManager
@@ -10,6 +10,8 @@ import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.widget.ImageView
+import com.example.phonehelper.*
+import com.example.phonehelper.features.integrated.IntegratedFeature
 
 class ShareMediaLockedFeature(accessibilityService: AccessibilityService): IntegratedFeature(accessibilityService) {
 
@@ -19,8 +21,12 @@ class ShareMediaLockedFeature(accessibilityService: AccessibilityService): Integ
 
     private val keyguardManager get() = accessibilityService.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
 
-    private val shareBtnWidth: Int get() = accessibilityService.resources.getDimensionPixelOffset(R.dimen.share_btn_size)
-    private val shareBtnHeight: Int get() = accessibilityService.resources.getDimensionPixelOffset(R.dimen.share_btn_size)
+    private val shareBtnWidth: Int get() = accessibilityService.resources.getDimensionPixelOffset(
+        R.dimen.share_btn_size
+    )
+    private val shareBtnHeight: Int get() = accessibilityService.resources.getDimensionPixelOffset(
+        R.dimen.share_btn_size
+    )
     private val shareBtnMarginBottom get() = 45f.toPx(accessibilityService)
     private val shareBtnMarginRight get() = 70f.toPx(accessibilityService)
 
@@ -62,7 +68,10 @@ class ShareMediaLockedFeature(accessibilityService: AccessibilityService): Integ
     }
 
     private fun launchShareIntent() {
-        accessibilityService.startActivity(ShareImageActivity.getIntent(accessibilityService)
+        accessibilityService.startActivity(
+            ShareMediaActivity.getIntent(
+                accessibilityService
+            )
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 }

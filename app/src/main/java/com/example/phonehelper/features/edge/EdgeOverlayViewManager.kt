@@ -1,4 +1,4 @@
-package com.example.phonehelper
+package com.example.phonehelper.features.edge
 
 import android.content.Context
 import android.graphics.Color
@@ -6,9 +6,15 @@ import android.graphics.PixelFormat
 import android.graphics.drawable.ColorDrawable
 import android.view.View
 import android.view.WindowManager
+import com.example.phonehelper.Preferences
+import com.example.phonehelper.features.Edge
+import com.example.phonehelper.features.EdgeGestureTrigger
+import com.example.phonehelper.features.Gesture
+import com.example.phonehelper.screenSize
 
 class EdgeOverlayViewManager(private val context: Context, private val preferences: Preferences,
-                             private val listener: Listener) {
+                             private val listener: Listener
+) {
 
     private val windowManager: WindowManager get() = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
@@ -24,7 +30,12 @@ class EdgeOverlayViewManager(private val context: Context, private val preferenc
     private fun addLeftEdgeView() {
         val gestureListener = object: GestureListener(context) {
             override fun onGesture(gesture: Gesture) {
-                listener.onEdgeGestureTriggered(EdgeGestureTrigger(Edge.LEFT, gesture))
+                listener.onEdgeGestureTriggered(
+                    EdgeGestureTrigger(
+                        Edge.LEFT,
+                        gesture
+                    )
+                )
             }
         }
         addTranslucentOverlayView(width = preferences.leftEdgeWidth,
@@ -38,7 +49,12 @@ class EdgeOverlayViewManager(private val context: Context, private val preferenc
     private fun addRightEdgeView() {
         val gestureListener = object: GestureListener(context) {
             override fun onGesture(gesture: Gesture) {
-                listener.onEdgeGestureTriggered(EdgeGestureTrigger(Edge.RIGHT, gesture))
+                listener.onEdgeGestureTriggered(
+                    EdgeGestureTrigger(
+                        Edge.RIGHT,
+                        gesture
+                    )
+                )
             }
         }
         addTranslucentOverlayView(width = preferences.rightEdgeWidth,
@@ -51,7 +67,6 @@ class EdgeOverlayViewManager(private val context: Context, private val preferenc
     private fun addTranslucentOverlayView(width: Int, height: Int, x: Int, y: Int, onTouchListener: View.OnTouchListener) {
         val view = View(context).apply {
             setOnTouchListener(onTouchListener)
-            background = ColorDrawable(Color.WHITE)
         }
         windowManager.addView(view, WindowManager.LayoutParams(
             width,

@@ -1,8 +1,11 @@
-package com.example.phonehelper
+package com.example.phonehelper.features.edge
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription
 import android.graphics.Path
+import com.example.phonehelper.Preferences
+import com.example.phonehelper.log
+import com.example.phonehelper.toPx
 import java.util.concurrent.TimeUnit
 
 class OpenNavDrawerFeature(private val accessibilityService: AccessibilityService,

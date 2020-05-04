@@ -2,6 +2,11 @@ package com.example.phonehelper
 
 import android.accessibilityservice.AccessibilityService
 import android.view.accessibility.AccessibilityEvent
+import com.example.phonehelper.features.edge.EdgeFeature
+import com.example.phonehelper.features.EdgeGestureTrigger
+import com.example.phonehelper.features.FeatureBuilder
+import com.example.phonehelper.features.edge.EdgeOverlayViewManager
+import com.example.phonehelper.features.integrated.IntegratedFeature
 
 
 class AccessibilityService : AccessibilityService(), EdgeOverlayViewManager.Listener {
@@ -18,9 +23,15 @@ class AccessibilityService : AccessibilityService(), EdgeOverlayViewManager.List
     override fun onServiceConnected() {
         super.onServiceConnected()
 
-        edgeOverlayViewManager = EdgeOverlayViewManager(this, preferences, this)
+        edgeOverlayViewManager =
+            EdgeOverlayViewManager(
+                this,
+                preferences,
+                this
+            )
 
-        val featureBuilder = FeatureBuilder(preferences, this)
+        val featureBuilder =
+            FeatureBuilder(preferences, this)
         integratedFeatures = featureBuilder.buildButtonFeatures()
         edgeGestureFeatures = featureBuilder.buildEdgeFeatures()
 
