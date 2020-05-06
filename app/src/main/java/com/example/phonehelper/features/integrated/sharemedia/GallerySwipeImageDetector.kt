@@ -91,13 +91,6 @@ class GallerySwipeImageDetector(private val accessibilityService: AccessibilityS
         lastViewedImageViewNode = imageViewNode
     }
 
-    private fun onIdleAfterScrolled() {
-
-    }
-
-    private fun cleanUp() {
-
-    }
 
     private fun getImageViewNodes(node: AccessibilityNodeInfo, list: ArrayList<AccessibilityNodeInfo>) {
         if (node.viewIdResourceName == IMAGE_VIEW_RESOURCE_ID) {

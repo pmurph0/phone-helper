@@ -16,6 +16,8 @@ import com.example.phonehelper.features.integrated.IntegratedFeature
 import com.example.phonehelper.log
 import com.example.phonehelper.screenSize
 import com.example.phonehelper.toPx
+import java.lang.IllegalArgumentException
+import java.lang.ref.WeakReference
 
 class ShareMediaLockedFeature(accessibilityService: AccessibilityService): IntegratedFeature(accessibilityService),
     GallerySwipeImageDetector.Listener {
@@ -87,9 +89,17 @@ class ShareMediaLockedFeature(accessibilityService: AccessibilityService): Integ
     }
 
     private fun hideShareBtn() {
-        //TODO
+        viewRef?.get()?.let {
+            try {
+                windowManager.removeView(it)
+                log("removed view")
+            } catch (e: IllegalArgumentException) {
+                log("view not attached")
+            }
+        }
     }
 
+    private var viewRef: WeakReference<View>? = null
     private fun addShareBtn() {
         val view = ImageView(accessibilityService).apply {
             setImageResource(R.drawable.ic_share_black_24dp)
@@ -97,6 +107,7 @@ class ShareMediaLockedFeature(accessibilityService: AccessibilityService): Integ
             context.theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, outValue, true)
             foreground = accessibilityService.getDrawable(outValue.resourceId)
         }
+        viewRef = WeakReference(view)
         val screenSize = accessibilityService.screenSize
         val xPos = (screenSize.width / 2) - shareBtnMarginRight
         val yPos = (screenSize.height / 2) - shareBtnMarginBottom
