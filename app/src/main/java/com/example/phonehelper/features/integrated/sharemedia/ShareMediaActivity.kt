@@ -17,15 +17,20 @@ class ShareMediaActivity: Activity() {
 
     companion object {
         const val EXTRA_IMAGE_URI = "EXTRA_IMAGE_URI"
+        const val EXTRA_MEDIA_POSITION = "EXTRA_MEDIA_POSITION"
         fun getIntent(context: Context, imageUri: Uri): Intent {
             return Intent(context, ShareMediaActivity::class.java).apply {
                 putExtra(EXTRA_IMAGE_URI, imageUri)
             }
         }
-        fun getIntent(context: Context): Intent {
-            return Intent(context, ShareMediaActivity::class.java)
+        fun getIntent(context: Context, mediaPosition: Int): Intent {
+            return Intent(context, ShareMediaActivity::class.java).apply {
+                putExtra(EXTRA_MEDIA_POSITION, mediaPosition)
+            }
         }
     }
+
+    private val mediaPosition get() = intent.getIntExtra(EXTRA_MEDIA_POSITION, 0)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,7 +83,7 @@ class ShareMediaActivity: Activity() {
         val proj = arrayOf(MediaStore.Images.Media.DATA)
         val cursor = resolver
             .query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, proj, null, null, "date_modified DESC")!!
-        val position = 0
+        val position = mediaPosition
         if (!cursor.moveToPosition(position)) {
             cursor.close()
             return null

@@ -47,8 +47,11 @@ class AccessibilityService : AccessibilityService(), EdgeOverlayViewManager.List
         }
     }
 
+
     override fun onEdgeGestureTriggered(gestureTrigger: EdgeGestureTrigger) {
         edgeGestureFeatures[gestureTrigger]?.onActionTriggered()
     }
+
+
 
 }
