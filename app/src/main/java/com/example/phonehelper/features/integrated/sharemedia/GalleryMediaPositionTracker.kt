@@ -26,6 +26,9 @@ class GalleryMediaPositionTracker(private val accessibilityService: Accessibilit
         }
 
     private var lastViewedImageViewNode: AccessibilityNodeInfo? = null
+    private var isDeleting = false
+    var currentPosition = 0
+        private set
 
     fun onAccessibilityEvent(event: AccessibilityEvent) {
         when (event.eventType) {
@@ -39,6 +42,10 @@ class GalleryMediaPositionTracker(private val accessibilityService: Accessibilit
                 }
             }
         }
+    }
+
+    private fun onImageDeleted() {
+        isDeleting = true
     }
 
     private fun onScrolling(imageViewNodes: List<AccessibilityNodeInfo>) {
@@ -106,12 +113,5 @@ class GalleryMediaPositionTracker(private val accessibilityService: Accessibilit
             }
         }
     }
-
-    private var isDeleting = false
-    private fun onImageDeleted() {
-        isDeleting = true
-    }
-
-    var currentPosition = 0
 
 }
