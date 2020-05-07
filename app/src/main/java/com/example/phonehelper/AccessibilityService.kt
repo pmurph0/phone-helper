@@ -23,22 +23,16 @@ class AccessibilityService : AccessibilityService(), EdgeOverlayViewManager.List
     override fun onServiceConnected() {
         super.onServiceConnected()
 
-        edgeOverlayViewManager =
-            EdgeOverlayViewManager(
-                this,
-                preferences,
-                this
-            )
+        edgeOverlayViewManager = EdgeOverlayViewManager(this, preferences, this)
+        edgeOverlayViewManager.addEdgeOverlayViews()
 
-        val featureBuilder =
-            FeatureBuilder(preferences, this)
-        integratedFeatures = featureBuilder.buildButtonFeatures()
+        val featureBuilder = FeatureBuilder(preferences, this)
+        integratedFeatures = featureBuilder.buildIntegratedFeatures()
         edgeGestureFeatures = featureBuilder.buildEdgeFeatures()
 
         integratedFeatures.forEach {
             it.onServiceConnected()
         }
-        edgeOverlayViewManager.addEdgeOverlayViews()
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
@@ -51,7 +45,4 @@ class AccessibilityService : AccessibilityService(), EdgeOverlayViewManager.List
     override fun onEdgeGestureTriggered(gestureTrigger: EdgeGestureTrigger) {
         edgeGestureFeatures[gestureTrigger]?.onActionTriggered()
     }
-
-
-
 }

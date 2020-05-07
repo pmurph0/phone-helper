@@ -6,13 +6,7 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import com.example.phonehelper.log
 
-class GallerySwipeImageDetector(private val accessibilityService: AccessibilityService,
-                                private val listener: Listener) {
-
-    interface Listener {
-        fun onSwipeToNextImage()
-        fun onSwipeToPreviousImage()
-    }
+class GalleryMediaPositionTracker(private val accessibilityService: AccessibilityService) {
 
     companion object {
         private const val IMAGE_VIEW_RESOURCE_ID = "com.oneplus.gallery:id/filmstrip_item_scale_image_view"
@@ -24,12 +18,10 @@ class GallerySwipeImageDetector(private val accessibilityService: AccessibilityS
 
     private var scrollingDirection = SCROLL_DIRECTION_NONE
         set(value) {
-            val directionLabel: String = when (value) {
-                SCROLL_DIRECTION_LEFT -> "SCROLL_DIRECTION_LEFT"
-                SCROLL_DIRECTION_RIGHT -> "SCROLL_DIRECTION_RIGHT"
-                else -> "SCROLL_DIRECTION_NONE"
+            when (value) {
+                SCROLL_DIRECTION_LEFT -> log("scrolling to previous")
+                SCROLL_DIRECTION_RIGHT -> log("scrolling to next")
             }
-            log("scrollingDirection = $directionLabel")
             field = value
         }
 
@@ -40,6 +32,12 @@ class GallerySwipeImageDetector(private val accessibilityService: AccessibilityS
             AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> {
                 onWindowContentChanged()
             }
+            AccessibilityEvent.TYPE_VIEW_CLICKED -> {
+                if (event.source?.viewIdResourceName?.contains("delete") == true) {
+                    log("delete clicked")
+                    onImageDeleted()
+                }
+            }
         }
     }
 
@@ -48,7 +46,7 @@ class GallerySwipeImageDetector(private val accessibilityService: AccessibilityS
 
         val rect = Rect()
         val trackNode = imageViewNodes.get(imageViewNodes.indexOf(lastViewedImageViewNode!!))
-        trackNode!!.getBoundsInScreen(rect)
+        trackNode.getBoundsInScreen(rect)
 
         if (rect.left > 0) {
             scrollingDirection = SCROLL_DIRECTION_LEFT
@@ -74,29 +72,32 @@ class GallerySwipeImageDetector(private val accessibilityService: AccessibilityS
     private fun onIdle(imageViewNode: AccessibilityNodeInfo) {
         val wasScrolling = scrollingDirection != SCROLL_DIRECTION_NONE
         if (wasScrolling) {
-            if (lastViewedImageViewNode != imageViewNode) {
-                log("Changed image")
-                if (scrollingDirection == SCROLL_DIRECTION_RIGHT) {
-                    log("onSwipeToNextImage")
-                    listener.onSwipeToNextImage()
-                } else if (scrollingDirection == SCROLL_DIRECTION_LEFT){
-                    log("onSwipeToPreviousImage")
-                    listener.onSwipeToPreviousImage()
-                }
-            } else {
-                log("Remained on same image")
-            }
+            onScrollStopped(imageViewNode)
         }
         scrollingDirection = SCROLL_DIRECTION_NONE
         lastViewedImageViewNode = imageViewNode
+        isDeleting = false
     }
 
+    private fun onScrollStopped(imageViewNode: AccessibilityNodeInfo) {
+        if (lastViewedImageViewNode != imageViewNode) {
+            log("Changed image")
+            if (scrollingDirection == SCROLL_DIRECTION_RIGHT) {
+                log("onSwipeToNextImage")
+                if (!isDeleting) {
+                    currentPosition++
+                }
+            } else if (scrollingDirection == SCROLL_DIRECTION_LEFT) {
+                log("onSwipeToPreviousImage")
+                currentPosition--
+            }
+        } else {
+            log("Remained on same image")
+        }
+    }
 
     private fun getImageViewNodes(node: AccessibilityNodeInfo, list: ArrayList<AccessibilityNodeInfo>) {
         if (node.viewIdResourceName == IMAGE_VIEW_RESOURCE_ID) {
-            val rect = Rect()
-            node.getBoundsInScreen(rect)
-            log("found imageview, rect is ${rect.toShortString()}, is last viewed image = ${node == lastViewedImageViewNode}")
             list.add(node)
         }
         if (node.childCount > 0) {
@@ -105,5 +106,12 @@ class GallerySwipeImageDetector(private val accessibilityService: AccessibilityS
             }
         }
     }
+
+    private var isDeleting = false
+    private fun onImageDeleted() {
+        isDeleting = true
+    }
+
+    var currentPosition = 0
 
 }

@@ -15,14 +15,10 @@ class FeatureBuilder(
     private val preferences: Preferences,
     private val accessibilityService: AccessibilityService
 ) {
-    fun buildButtonFeatures(): List<IntegratedFeature> {
+    fun buildIntegratedFeatures(): List<IntegratedFeature> {
         return ArrayList<IntegratedFeature>().apply {
             if (preferences.isShareMediaLockedEnabled) {
-                add(
-                    ShareMediaLockedFeature(
-                        accessibilityService
-                    )
-                )
+                add(ShareMediaLockedFeature(accessibilityService))
             }
         }
     }

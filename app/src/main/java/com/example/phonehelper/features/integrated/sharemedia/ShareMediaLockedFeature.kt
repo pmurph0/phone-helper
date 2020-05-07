@@ -9,7 +9,6 @@ import android.util.TypedValue
 import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
-import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.ImageView
 import com.example.phonehelper.R
 import com.example.phonehelper.features.integrated.IntegratedFeature
@@ -19,8 +18,7 @@ import com.example.phonehelper.toPx
 import java.lang.IllegalArgumentException
 import java.lang.ref.WeakReference
 
-class ShareMediaLockedFeature(accessibilityService: AccessibilityService): IntegratedFeature(accessibilityService),
-    GallerySwipeImageDetector.Listener {
+class ShareMediaLockedFeature(accessibilityService: AccessibilityService): IntegratedFeature(accessibilityService) {
 
     companion object {
         const val GALLERY_APP_PACKAGE_NAME = "com.oneplus.gallery"
@@ -39,17 +37,15 @@ class ShareMediaLockedFeature(accessibilityService: AccessibilityService): Integ
     private val shareBtnMarginBottom get() = 45f.toPx(accessibilityService)
     private val shareBtnMarginRight get() = 70f.toPx(accessibilityService)
 
-    private var mediaPosition = 0
-
-    private var gallerySwipeImageDetector: GallerySwipeImageDetector? = null
+    private var galleryMediaPositionTracker: GalleryMediaPositionTracker? = null
 
     override fun onServiceConnected() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
-        log("onAccessibilityEvent ${mapEventType(event.eventType)} ${event.packageName}")
+        log("onAccessibilityEvent ${mapEventType(event.eventType)} ${event.packageName} recordCount = ${event.recordCount}")
 
-        gallerySwipeImageDetector?.onAccessibilityEvent(event)    //TODO un-comment
+        galleryMediaPositionTracker?.onAccessibilityEvent(event)    //TODO un-comment
 
         when(event.eventType) {
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
@@ -69,22 +65,21 @@ class ShareMediaLockedFeature(accessibilityService: AccessibilityService): Integ
                     }
                 }
             }
+
         }
     }
 
     private fun setUp() {
         addShareBtn()
-        mediaPosition = 0
-        if (gallerySwipeImageDetector == null) {
-            gallerySwipeImageDetector = GallerySwipeImageDetector(accessibilityService, this)
+        if (galleryMediaPositionTracker == null) {
+            galleryMediaPositionTracker = GalleryMediaPositionTracker(accessibilityService)
         } else {
             log("GallerySwipeImageDetector already initialized :/")
         }
     }
 
     private fun reset() {
-        gallerySwipeImageDetector = null
-        mediaPosition = 0
+        galleryMediaPositionTracker = null
         hideShareBtn()
     }
 
@@ -129,17 +124,9 @@ class ShareMediaLockedFeature(accessibilityService: AccessibilityService): Integ
         accessibilityService.startActivity(
             ShareMediaActivity.getIntent(
                 accessibilityService,
-                mediaPosition
+                galleryMediaPositionTracker?.currentPosition ?: 0
             )
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-    }
-
-    override fun onSwipeToNextImage() {
-        mediaPosition++
-    }
-
-    override fun onSwipeToPreviousImage() {
-        mediaPosition--
     }
 }
 
