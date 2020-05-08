@@ -6,6 +6,8 @@ import android.view.MotionEvent
 import android.view.View
 import com.example.phonehelper.features.Gesture
 import com.example.phonehelper.log
+import kotlin.math.max
+import kotlin.math.min
 
 abstract class GestureListener(context: Context) {
 
@@ -14,7 +16,7 @@ abstract class GestureListener(context: Context) {
         private const val MOVE_DIRECTION_NONE = 0
         private const val MOVE_DIRECTION_DOWN = -1
 
-        private const val INVALID = Int.MAX_VALUE.toFloat()
+        private const val LINEAR_MOVE_RELEASE_POINT_BUFFER = 100
     }
 
     private val onGestureListener = object: GestureDetector.SimpleOnGestureListener() {
@@ -27,8 +29,6 @@ abstract class GestureListener(context: Context) {
     private val gestureDetector = GestureDetector(context, onGestureListener)
 
     val onTouchListener = View.OnTouchListener { _, event ->
-        log(event.toString())
-
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 onTouchStart(event)
@@ -46,15 +46,15 @@ abstract class GestureListener(context: Context) {
     }
 
     private var isMoving = false
-    private var moveDeepestPoint = INVALID
+    private var moveDeepestPoint = 0f
     private var initialMoveDirection = MOVE_DIRECTION_NONE
     private var touchStartPoint = 0f
 
     private fun onTouchRelease(event: MotionEvent) {
         if (isMoving) {
             val didScrub = when (initialMoveDirection) {
-                MOVE_DIRECTION_UP -> (event.y - moveDeepestPoint) > 100
-                MOVE_DIRECTION_DOWN -> (moveDeepestPoint - event.y) > 100
+                MOVE_DIRECTION_UP -> (event.y - moveDeepestPoint) > LINEAR_MOVE_RELEASE_POINT_BUFFER
+                MOVE_DIRECTION_DOWN -> (moveDeepestPoint - event.y) > LINEAR_MOVE_RELEASE_POINT_BUFFER
                 else -> false
             }
             if (didScrub) {
@@ -92,8 +92,8 @@ abstract class GestureListener(context: Context) {
             }
         }
         when (initialMoveDirection) {
-            MOVE_DIRECTION_DOWN -> moveDeepestPoint = Math.max(moveDeepestPoint, event.y)
-            MOVE_DIRECTION_UP -> moveDeepestPoint = Math.min(moveDeepestPoint, event.y)
+            MOVE_DIRECTION_DOWN -> moveDeepestPoint = max(moveDeepestPoint, event.y)
+            MOVE_DIRECTION_UP -> moveDeepestPoint = min(moveDeepestPoint, event.y)
         }
         isMoving = true
     }
