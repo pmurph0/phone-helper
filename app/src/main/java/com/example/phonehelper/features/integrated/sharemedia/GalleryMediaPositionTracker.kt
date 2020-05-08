@@ -31,20 +31,23 @@ class GalleryMediaPositionTracker(private val accessibilityService: Accessibilit
         private set
 
     fun onAccessibilityEvent(event: AccessibilityEvent) {
+
         when (event.eventType) {
             AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> {
+
                 onWindowContentChanged()
             }
             AccessibilityEvent.TYPE_VIEW_CLICKED -> {
-                if (event.source?.viewIdResourceName?.contains("delete") == true) {
+                if (event.source?.viewIdResourceName?.contains("delete") == true) { //TODO use equals for better efficiency?
                     log("delete clicked")
-                    onImageDeleted()
+                    onDeleteImageClick()
                 }
             }
+
         }
     }
 
-    private fun onImageDeleted() {
+    private fun onDeleteImageClick() {
         isDeleting = true
     }
 

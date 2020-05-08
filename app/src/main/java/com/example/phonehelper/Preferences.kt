@@ -55,7 +55,7 @@ class Preferences(private val context: Context) {
         return when (gesture) {
             FLING_UP -> Action.VOLUME_UP
             FLING_DOWN -> Action.VOLUME_DOWN
-            SCRUB -> null
+            SCRUB -> Action.OPEN_NAV_DRAWER
             DOUBLE_TAP -> Action.OPEN_NAV_DRAWER
         }
     }
