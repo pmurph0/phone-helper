@@ -39,6 +39,8 @@ class ShareMediaLockedFeature(accessibilityService: AccessibilityService): Integ
 
     private var galleryMediaPositionTracker: GalleryMediaPositionTracker? = null
 
+    private var viewRef: WeakReference<View>? = null
+
     override fun onServiceConnected() {
     }
 
@@ -54,9 +56,6 @@ class ShareMediaLockedFeature(accessibilityService: AccessibilityService): Integ
                         } else {
                             reset()
                         }
-                    }
-                    accessibilityService.applicationContext.packageName -> {
-                        //do nothing
                     }
                     else -> {
                         reset()
@@ -79,6 +78,7 @@ class ShareMediaLockedFeature(accessibilityService: AccessibilityService): Integ
     private fun reset() {
         galleryMediaPositionTracker = null
         hideShareBtn()
+        viewRef?.clear()
     }
 
     private fun hideShareBtn() {
@@ -92,7 +92,6 @@ class ShareMediaLockedFeature(accessibilityService: AccessibilityService): Integ
         }
     }
 
-    private var viewRef: WeakReference<View>? = null
     private fun addShareBtn() {
         val view = ImageView(accessibilityService).apply {
             setImageResource(R.drawable.ic_share_white_24dp)
@@ -119,12 +118,13 @@ class ShareMediaLockedFeature(accessibilityService: AccessibilityService): Integ
     }
 
     private fun launchShareIntent() {
+        val uri = MediaManager(accessibilityService)
+            .getRecentMediaFileAsShareableUri(galleryMediaPositionTracker?.currentPosition ?: 0)
+            ?: return
         accessibilityService.startActivity(
-            ShareMediaActivity.getIntent(
-                accessibilityService,
-                galleryMediaPositionTracker?.currentPosition ?: 0
-            )
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
+            ShareMediaActivity.getIntent(accessibilityService, uri)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        )
     }
 }
 
