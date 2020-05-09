@@ -10,8 +10,10 @@ import android.provider.MediaStore
 import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toFile
+import com.example.phonehelper.R
 import com.example.phonehelper.log
 import java.io.File
+
 
 //TODO tidy
 class ShareMediaActivity: Activity() {
@@ -19,6 +21,23 @@ class ShareMediaActivity: Activity() {
     companion object {
         const val EXTRA_IMAGE_URI = "EXTRA_IMAGE_URI"
         const val EXTRA_MEDIA_POSITION = "EXTRA_MEDIA_POSITION"
+
+        val projection = arrayOf(
+            MediaStore.Files.FileColumns._ID,
+            MediaStore.Files.FileColumns.DATA,  //TODO dont use deprecated API
+            MediaStore.Files.FileColumns.DATE_ADDED,
+            MediaStore.Files.FileColumns.MEDIA_TYPE,
+            MediaStore.Files.FileColumns.MIME_TYPE,
+            MediaStore.Files.FileColumns.TITLE
+        )
+
+        // Return only video and image metadata.
+        val selection = (MediaStore.Files.FileColumns.MEDIA_TYPE + "="
+                + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE
+                + " OR "
+                + MediaStore.Files.FileColumns.MEDIA_TYPE + "="
+                + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO)
+
         fun getIntent(context: Context, imageUri: Uri): Intent {
             return Intent(context, ShareMediaActivity::class.java).apply {
                 putExtra(EXTRA_IMAGE_URI, imageUri)
@@ -74,15 +93,26 @@ class ShareMediaActivity: Activity() {
         val mimeType = contentResolver.getType(shareableUri)
         log("mimeType is $mimeType")
         shareIntent.type = mimeType
-        startActivity(Intent.createChooser(shareIntent, "Share"))
+        startActivity(Intent.createChooser(shareIntent, getString(R.string.label_share)))
     }
 
     private fun getLastImageInCameraFolder(): Uri? {
-        //TODO dont use deprecated APIs
-        val resolver = contentResolver ?: return null
-        val proj = arrayOf(MediaStore.Images.Media.DATA)
-        val cursor = resolver
-            .query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, proj, null, null, "date_modified DESC")!!
+        // Get relevant columns for use later.
+        // Get relevant columns for use later.
+        val queryUri = MediaStore.Files.getContentUri("external")
+
+        val cursor = contentResolver.query(
+            queryUri,
+            projection,
+            selection,
+            null,  // Selection args (none).
+            "${MediaStore.Files.FileColumns.DATE_MODIFIED} DESC" // Sort order.
+        )
+
+        if (cursor == null) {
+            return null
+        }
+
         val position = mediaPosition
         if (!cursor.moveToPosition(position)) {
             cursor.close()
