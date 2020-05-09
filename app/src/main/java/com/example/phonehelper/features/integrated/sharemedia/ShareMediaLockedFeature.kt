@@ -57,6 +57,9 @@ class ShareMediaLockedFeature(accessibilityService: AccessibilityService): Integ
                             reset()
                         }
                     }
+                    accessibilityService.applicationContext.packageName -> {
+                        //do nothing
+                    }
                     else -> {
                         reset()
                     }

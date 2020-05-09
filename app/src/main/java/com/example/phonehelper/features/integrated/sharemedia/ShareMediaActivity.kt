@@ -12,6 +12,7 @@ import com.example.phonehelper.R
 class ShareMediaActivity: Activity() {
 
     companion object {
+        const val REQ_CODE_SHARE_MEDIA = 333
         const val EXTRA_SHAREABLE_MEDIA_URI = "EXTRA_SHAREABLE_MEDIA_URI"
 
         fun getIntent(context: Context, imageUri: Uri): Intent {
@@ -56,7 +57,17 @@ class ShareMediaActivity: Activity() {
             type = mimeType
         }
 
-        startActivity(Intent.createChooser(shareIntent, getString(R.string.label_share)))
+        startActivityForResult(Intent.createChooser(shareIntent, getString(R.string.label_share)), REQ_CODE_SHARE_MEDIA)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when (requestCode) {
+            REQ_CODE_SHARE_MEDIA -> {
+                when (resultCode) {
+                    RESULT_OK, RESULT_CANCELED -> finish()
+                }
+            }
+        }
+    }
 }
