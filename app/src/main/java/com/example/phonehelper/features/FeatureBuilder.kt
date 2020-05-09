@@ -3,6 +3,7 @@ package com.example.phonehelper.features
 import android.accessibilityservice.AccessibilityService
 import com.example.phonehelper.Preferences
 import com.example.phonehelper.features.edge.*
+import com.example.phonehelper.features.edge.Action.*
 import com.example.phonehelper.features.integrated.IntegratedFeature
 import com.example.phonehelper.features.integrated.sharemedia.ShareMediaLockedFeature
 import java.util.*
@@ -25,9 +26,11 @@ class FeatureBuilder(private val preferences: Preferences, private val accessibi
         return HashMap<EdgeGestureTrigger, EdgeFeature>().apply {
             Edge.values().forEach { edge ->
                 Gesture.values().forEach {gesture ->
-                    preferences.getActionForEdge(edge, gesture)?.let { action ->
-                        val trigger = EdgeGestureTrigger(edge, gesture)
-                        put(trigger, buildFeatureForAction(action))
+                    preferences.getActionForEdge(edge, gesture)?.let { appActionMap ->
+                        appActionMap.keys.forEach { app ->
+                            val trigger = EdgeGestureTrigger(edge, gesture, app)
+                            put(trigger, buildFeatureForAction(appActionMap.getValue(app)))
+                        }
                     }
                 }
             }
@@ -36,16 +39,18 @@ class FeatureBuilder(private val preferences: Preferences, private val accessibi
 
     private fun buildFeatureForAction(action: Action): EdgeFeature {
         return when(action) {
-            Action.OPEN_NAV_DRAWER -> OpenNavDrawerFeature(
+            OPEN_NAV_DRAWER -> OpenNavDrawerFeature(
                 accessibilityService,
                 preferences
             )
-            Action.VOLUME_UP -> VolumeUpFeature(
+            VOLUME_UP -> VolumeUpFeature(
                 context = accessibilityService
             )
-            Action.VOLUME_DOWN -> VolumeDownFeature(
+            VOLUME_DOWN -> VolumeDownFeature(
                 context = accessibilityService
             )
+            SWITCH_CAMERA -> SwitchCameraFeature(accessibilityService)
+            CAMERA_CAPTURE -> CaptureImageCameraFeature(accessibilityService)
         }
     }
 }

@@ -24,12 +24,7 @@ class EdgeOverlayViewManager(private val context: Context, private val preferenc
     private fun addLeftEdgeView() {
         val gestureListener = object: GestureListener(context) {
             override fun onGesture(gesture: Gesture) {
-                listener.onEdgeGestureTriggered(
-                    EdgeGestureTrigger(
-                        Edge.LEFT,
-                        gesture
-                    )
-                )
+                listener.onEdgeGestureTriggered(Edge.LEFT, gesture)
             }
         }
         addTranslucentOverlayView(width = preferences.leftEdgeWidth,
@@ -43,12 +38,7 @@ class EdgeOverlayViewManager(private val context: Context, private val preferenc
     private fun addRightEdgeView() {
         val gestureListener = object: GestureListener(context) {
             override fun onGesture(gesture: Gesture) {
-                listener.onEdgeGestureTriggered(
-                    EdgeGestureTrigger(
-                        Edge.RIGHT,
-                        gesture
-                    )
-                )
+                listener.onEdgeGestureTriggered(Edge.RIGHT, gesture)
             }
         }
         addTranslucentOverlayView(width = preferences.rightEdgeWidth,
@@ -75,7 +65,7 @@ class EdgeOverlayViewManager(private val context: Context, private val preferenc
     }
 
     interface Listener {
-        fun onEdgeGestureTriggered(gestureTrigger: EdgeGestureTrigger)
+        fun onEdgeGestureTriggered(edge: Edge, gesture: Gesture)
     }
 
 }

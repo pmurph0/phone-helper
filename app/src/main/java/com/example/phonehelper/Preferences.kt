@@ -40,21 +40,36 @@ class Preferences(private val context: Context) {
     val rightEdgeYPos: Int
         get() = 0   //TODO
 
-    fun getActionForEdge(edge: Edge, gesture: Gesture): Action? {
-        return when (edge) {
-            Edge.LEFT -> when (gesture) {
-                Gesture.FLING_UP -> Action.OPEN_NAV_DRAWER
-                Gesture.FLING_DOWN -> null
-                Gesture.SCRUB -> null
-                Gesture.DOUBLE_TAP -> null
-            }
-            Edge.RIGHT -> when (gesture) {
-                Gesture.FLING_UP -> Action.VOLUME_UP
-                Gesture.FLING_DOWN -> Action.VOLUME_DOWN
-                Gesture.SCRUB -> Action.OPEN_NAV_DRAWER
-                Gesture.DOUBLE_TAP -> Action.OPEN_NAV_DRAWER
+
+    fun getActionForEdge(edge: Edge, gesture: Gesture): Map<String, Action>? {
+        return HashMap<String, Action>().apply {
+            when (edge) {
+                Edge.LEFT -> when (gesture) {
+                    Gesture.FLING_UP -> put(AppIds.ALL_OTHER, Action.OPEN_NAV_DRAWER)
+                    Gesture.FLING_DOWN -> null  //do nothing
+                    Gesture.SCRUB -> put(AppIds.CAMERA, Action.SWITCH_CAMERA)
+                    Gesture.DOUBLE_TAP -> null  //do nothing
+                }
+                Edge.RIGHT -> when (gesture) {
+                    Gesture.FLING_UP -> {
+                        put(AppIds.ALL_OTHER, Action.VOLUME_UP)
+                        put(AppIds.CAMERA, Action.CAMERA_CAPTURE)
+                    }
+                    Gesture.FLING_DOWN -> {
+                        put(AppIds.ALL_OTHER, Action.VOLUME_DOWN)
+                        put(AppIds.CAMERA, Action.CAMERA_CAPTURE)
+                    }
+                    Gesture.SCRUB -> {
+                        put(AppIds.ALL_OTHER, Action.OPEN_NAV_DRAWER)
+                        put(AppIds.CAMERA, Action.SWITCH_CAMERA)
+                    }
+                    Gesture.DOUBLE_TAP -> {
+                        put(AppIds.ALL_OTHER, Action.OPEN_NAV_DRAWER)
+                    }
+                }
             }
         }
+
     }
 
 }

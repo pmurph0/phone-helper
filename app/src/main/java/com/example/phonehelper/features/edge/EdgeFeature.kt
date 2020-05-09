@@ -17,7 +17,9 @@ enum class Edge {
 enum class Action {
     OPEN_NAV_DRAWER,
     VOLUME_UP,
-    VOLUME_DOWN
+    VOLUME_DOWN,
+    SWITCH_CAMERA,
+    CAMERA_CAPTURE
 }
 
-data class EdgeGestureTrigger(val edge: Edge, val gesture: Gesture)
+data class EdgeGestureTrigger constructor(val edge: Edge, val gesture: Gesture, val app: String)

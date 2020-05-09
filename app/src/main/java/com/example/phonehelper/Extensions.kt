@@ -1,18 +1,15 @@
 package com.example.phonehelper
 
+import android.accessibilityservice.AccessibilityService
 import android.content.Context
 import android.content.res.Resources
-import android.graphics.Rect
 import android.util.DisplayMetrics
 import android.util.Log
 import android.util.Size
 import android.util.TypedValue
-import android.view.TouchDelegate
-import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
-import androidx.annotation.Px
+import android.view.accessibility.AccessibilityNodeInfo
 
 val Context.screenSize: Size
     get () {
@@ -39,23 +36,41 @@ fun Context.toPx(value: Float): Int {
 fun Int.toPx(context: Context): Int {
     return context.toPx(this.toFloat())
 }
+
 fun Float.toPx(context: Context): Int {
     return context.toPx(this)
 }
 
-fun View.expandViewHitAreaBy(@Px extra: Int = 0,
-                             parentView: ViewGroup = (parent as ViewGroup)
-) {
-    parentView.post {
-        val childRect = Rect()
-        this.getHitRect(childRect)
-        childRect.left -= extra
-        childRect.top -= extra
-        childRect.right += extra
-        childRect.bottom += extra
+fun String.nullIfEmpty(): String? = if (isNullOrEmpty()) null else this
 
-        parentView.touchDelegate = TouchDelegate(childRect, this)
+fun AccessibilityService.logAllViews() {
+
+    fun logAllViews(node: AccessibilityNodeInfo) {
+        log("${node.className} ${node.viewIdResourceName}")
+        for (i in 0 until node.childCount) {
+            val childNode = node.getChild(i)
+            logAllViews(childNode)
+        }
     }
+
+    logAllViews(rootInActiveWindow)
+}
+
+fun AccessibilityService.clickView(id: String): Boolean {
+
+    fun clickView(node: AccessibilityNodeInfo): Boolean {
+        if (node.viewIdResourceName == id) {
+            return node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+        }
+        log("${node.className} ${node.viewIdResourceName}")
+        for (i in 0 until node.childCount) {
+            val childNode = node.getChild(i)
+            if (clickView(childNode)) return true
+        }
+        return false
+    }
+
+    return clickView(rootInActiveWindow)
 }
 
 fun Int.mapToEventType(): String {

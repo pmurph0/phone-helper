@@ -10,19 +10,12 @@ import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.widget.ImageView
-import com.example.phonehelper.R
+import com.example.phonehelper.*
 import com.example.phonehelper.features.integrated.IntegratedFeature
-import com.example.phonehelper.log
-import com.example.phonehelper.screenSize
-import com.example.phonehelper.toPx
 import java.lang.IllegalArgumentException
 import java.lang.ref.WeakReference
 
 class ShareMediaLockedFeature(accessibilityService: AccessibilityService): IntegratedFeature(accessibilityService) {
-
-    companion object {
-        const val GALLERY_APP_PACKAGE_NAME = "com.oneplus.gallery"
-    }
 
     private val isDeviceLocked: Boolean get() = keyguardManager.isDeviceLocked
     private val windowManager: WindowManager get() = accessibilityService.getSystemService(Context.WINDOW_SERVICE) as WindowManager
@@ -50,7 +43,7 @@ class ShareMediaLockedFeature(accessibilityService: AccessibilityService): Integ
         when(event.eventType) {
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
                 when (event.packageName) {
-                    GALLERY_APP_PACKAGE_NAME -> {
+                    AppIds.GALLERY -> {
                         if (isDeviceLocked) {
                             setUp()
                         } else {
