@@ -1,20 +1,18 @@
 package com.example.phonehelper.features
 
 import android.accessibilityservice.AccessibilityService
-import com.example.phonehelper.*
-import com.example.phonehelper.features.Action.*
-import com.example.phonehelper.features.edge.EdgeFeature
-import com.example.phonehelper.features.edge.OpenNavDrawerFeature
-import com.example.phonehelper.features.edge.VolumeDownFeature
-import com.example.phonehelper.features.edge.VolumeUpFeature
+import com.example.phonehelper.Preferences
+import com.example.phonehelper.features.edge.*
 import com.example.phonehelper.features.integrated.IntegratedFeature
 import com.example.phonehelper.features.integrated.sharemedia.ShareMediaLockedFeature
-import java.util.ArrayList
+import java.util.*
+import kotlin.collections.HashMap
+import kotlin.collections.List
+import kotlin.collections.Map
+import kotlin.collections.forEach
 
-class FeatureBuilder(
-    private val preferences: Preferences,
-    private val accessibilityService: AccessibilityService
-) {
+class FeatureBuilder(private val preferences: Preferences, private val accessibilityService: AccessibilityService) {
+
     fun buildIntegratedFeatures(): List<IntegratedFeature> {
         return ArrayList<IntegratedFeature>().apply {
             if (preferences.isShareMediaLockedEnabled) {
@@ -25,14 +23,12 @@ class FeatureBuilder(
 
     fun buildEdgeFeatures(): Map<EdgeGestureTrigger, EdgeFeature> {
         return HashMap<EdgeGestureTrigger, EdgeFeature>().apply {
-            Gesture.values().forEach { gesture ->
-                preferences.getLeftEdgeAction(gesture)?.let { action ->
-                    val trigger = EdgeGestureTrigger(Edge.LEFT, gesture)
-                    put(trigger, buildFeatureForAction(action))
-                }
-                preferences.getRightEdgeAction(gesture)?.let { action ->
-                    val trigger = EdgeGestureTrigger(Edge.RIGHT, gesture)
-                    put(trigger, buildFeatureForAction(action))
+            Edge.values().forEach { edge ->
+                Gesture.values().forEach {gesture ->
+                    preferences.getActionForEdge(edge, gesture)?.let { action ->
+                        val trigger = EdgeGestureTrigger(edge, gesture)
+                        put(trigger, buildFeatureForAction(action))
+                    }
                 }
             }
         }
@@ -40,33 +36,16 @@ class FeatureBuilder(
 
     private fun buildFeatureForAction(action: Action): EdgeFeature {
         return when(action) {
-            OPEN_NAV_DRAWER -> OpenNavDrawerFeature(
+            Action.OPEN_NAV_DRAWER -> OpenNavDrawerFeature(
                 accessibilityService,
                 preferences
             )
-            VOLUME_UP -> VolumeUpFeature(
+            Action.VOLUME_UP -> VolumeUpFeature(
                 context = accessibilityService
             )
-            VOLUME_DOWN -> VolumeDownFeature(
+            Action.VOLUME_DOWN -> VolumeDownFeature(
                 context = accessibilityService
             )
         }
     }
 }
-
-enum class Gesture {
-    FLING_UP,
-    FLING_DOWN,
-    SCRUB,
-    DOUBLE_TAP
-}
-enum class Edge {
-    LEFT,
-    RIGHT
-}
-enum class Action {
-    OPEN_NAV_DRAWER,
-    VOLUME_UP,
-    VOLUME_DOWN
-}
-data class EdgeGestureTrigger(val edge: Edge, val gesture: Gesture)

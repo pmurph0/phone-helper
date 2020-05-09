@@ -8,7 +8,6 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.core.app.ShareCompat
 import com.example.phonehelper.R
-import com.example.phonehelper.log
 
 class ShareMediaActivity: Activity() {
 
@@ -47,14 +46,16 @@ class ShareMediaActivity: Activity() {
     }
 
     private fun launchShareIntent() {
+        val mimeType = contentResolver.getType(shareableUri)
+
         val shareIntent = ShareCompat.IntentBuilder.from(this)
             .setStream(shareableUri)
-            .intent
-        shareIntent.data = shareableUri
-        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        val mimeType = contentResolver.getType(shareableUri)
-        log("mimeType is $mimeType")
-        shareIntent.type = mimeType
+            .intent.apply {
+            data = shareableUri
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            type = mimeType
+        }
+
         startActivity(Intent.createChooser(shareIntent, getString(R.string.label_share)))
     }
 

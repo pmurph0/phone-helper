@@ -4,8 +4,6 @@ import android.content.Context
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
-import com.example.phonehelper.features.Gesture
-import com.example.phonehelper.log
 import kotlin.math.max
 import kotlin.math.min
 

@@ -1,9 +1,9 @@
 package com.example.phonehelper
 
 import android.content.Context
-import com.example.phonehelper.features.Action
-import com.example.phonehelper.features.Gesture
-import com.example.phonehelper.features.Gesture.*
+import com.example.phonehelper.features.edge.Action
+import com.example.phonehelper.features.edge.Edge
+import com.example.phonehelper.features.edge.Gesture
 
 class Preferences(private val context: Context) {
 
@@ -40,23 +40,20 @@ class Preferences(private val context: Context) {
     val rightEdgeYPos: Int
         get() = 0   //TODO
 
-    fun getLeftEdgeAction(gesture: Gesture): Action? {
-        //TODO
-        return when (gesture) {
-            FLING_UP -> Action.OPEN_NAV_DRAWER
-            FLING_DOWN -> null
-            SCRUB -> null
-            DOUBLE_TAP -> null
-        }
-    }
-
-    fun getRightEdgeAction(gesture: Gesture): Action? {
-        //TODO
-        return when (gesture) {
-            FLING_UP -> Action.VOLUME_UP
-            FLING_DOWN -> Action.VOLUME_DOWN
-            SCRUB -> Action.OPEN_NAV_DRAWER
-            DOUBLE_TAP -> Action.OPEN_NAV_DRAWER
+    fun getActionForEdge(edge: Edge, gesture: Gesture): Action? {
+        return when (edge) {
+            Edge.LEFT -> when (gesture) {
+                Gesture.FLING_UP -> Action.OPEN_NAV_DRAWER
+                Gesture.FLING_DOWN -> null
+                Gesture.SCRUB -> null
+                Gesture.DOUBLE_TAP -> null
+            }
+            Edge.RIGHT -> when (gesture) {
+                Gesture.FLING_UP -> Action.VOLUME_UP
+                Gesture.FLING_DOWN -> Action.VOLUME_DOWN
+                Gesture.SCRUB -> Action.OPEN_NAV_DRAWER
+                Gesture.DOUBLE_TAP -> Action.OPEN_NAV_DRAWER
+            }
         }
     }
 

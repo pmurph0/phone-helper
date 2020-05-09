@@ -1,20 +1,14 @@
 package com.example.phonehelper.features.edge
 
 import android.content.Context
-import android.graphics.Color
 import android.graphics.PixelFormat
-import android.graphics.drawable.ColorDrawable
 import android.view.View
 import android.view.WindowManager
 import com.example.phonehelper.Preferences
-import com.example.phonehelper.features.Edge
-import com.example.phonehelper.features.EdgeGestureTrigger
-import com.example.phonehelper.features.Gesture
 import com.example.phonehelper.screenSize
 
 class EdgeOverlayViewManager(private val context: Context, private val preferences: Preferences,
-                             private val listener: Listener
-) {
+                             private val listener: Listener) {
 
     private val windowManager: WindowManager get() = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
