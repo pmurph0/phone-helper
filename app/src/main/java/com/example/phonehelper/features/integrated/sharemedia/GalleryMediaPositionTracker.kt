@@ -112,7 +112,10 @@ class GalleryMediaPositionTracker(private val accessibilityService: Accessibilit
         }
         if (node.childCount > 0) {
             for (i in 0 until node.childCount) {
-                getImageViewNodes(node.getChild(i), list)
+                val childNode = node.getChild(i)
+                if (childNode != null) {
+                    getImageViewNodes(childNode, list)
+                }
             }
         }
     }

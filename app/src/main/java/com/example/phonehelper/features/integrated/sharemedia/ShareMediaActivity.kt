@@ -10,6 +10,7 @@ import android.provider.MediaStore
 import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toFile
+import com.example.phonehelper.log
 import java.io.File
 
 //TODO tidy
@@ -60,6 +61,7 @@ class ShareMediaActivity: Activity() {
     }
 
     private fun launchShareIntent() {
+        val uri = getLastImageInCameraFolder() ?: return
         val shareableUri = FileProvider.getUriForFile(
             this, this.applicationContext
                 .packageName.toString() + ".provider", uri.toFile()
@@ -69,27 +71,25 @@ class ShareMediaActivity: Activity() {
             .intent
         shareIntent.data = shareableUri
         shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        shareIntent.type = "image/jpeg"
-        startActivity(Intent.createChooser(shareIntent, "Share image"))
+        val mimeType = contentResolver.getType(shareableUri)
+        log("mimeType is $mimeType")
+        shareIntent.type = mimeType
+        startActivity(Intent.createChooser(shareIntent, "Share"))
     }
 
-    val uri: Uri get() {
-        return getLastImageInCameraFolder(this)!!
-    }
-
-    private fun getLastImageInCameraFolder(c: Context): Uri? {
+    private fun getLastImageInCameraFolder(): Uri? {
         //TODO dont use deprecated APIs
-        val resolver = c.contentResolver ?: return null
+        val resolver = contentResolver ?: return null
         val proj = arrayOf(MediaStore.Images.Media.DATA)
         val cursor = resolver
-            .query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, proj, null, null, "date_modified DESC")!!
+            .query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, proj, null, null, "date_modified DESC")!!
         val position = mediaPosition
         if (!cursor.moveToPosition(position)) {
             cursor.close()
             return null
         }
-        val columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-        val path = cursor.getString(columnIndex)
+        val pathIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+        val path = cursor.getString(pathIndex)
         cursor.close()
         return Uri.fromFile(File(path))
     }
