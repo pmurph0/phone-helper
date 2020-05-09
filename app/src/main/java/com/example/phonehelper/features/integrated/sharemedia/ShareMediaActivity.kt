@@ -48,22 +48,13 @@ class ShareMediaActivity: Activity() {
     }
 
     private fun launchShareIntent() {
-        val mimeType = contentResolver.getType(shareableUri)
-
         val shareIntent = Intent().apply {
             action = Intent.ACTION_SEND
             putExtra(Intent.EXTRA_STREAM, shareableUri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            clipData = ClipData.newUri(contentResolver, "App name", shareableUri)
-            type = mimeType
+            clipData = ClipData.newUri(contentResolver, getString(R.string.label_preview), shareableUri)
+            type = contentResolver.getType(shareableUri)
         }
-
-//        val shareIntent = ShareCompat.IntentBuilder.from(this)
-//            .setStream(shareableUri)
-//            .intent.apply {
-//            data = shareableUri
-//            type = mimeType
-//        }
 
         startActivityForResult(Intent.createChooser(shareIntent, getString(R.string.label_share)), REQ_CODE_SHARE_MEDIA)
     }
