@@ -26,19 +26,13 @@ class FeatureBuilder(
     fun buildEdgeFeatures(): Map<EdgeGestureTrigger, EdgeFeature> {
         return HashMap<EdgeGestureTrigger, EdgeFeature>().apply {
             Gesture.values().forEach { gesture ->
-                preferences.getLeftEdgeAction(gesture)?.let {
-                        action -> put(
-                    EdgeGestureTrigger(
-                        Edge.LEFT,
-                        gesture
-                    ), buildFeatureForAction(action))
+                preferences.getLeftEdgeAction(gesture)?.let { action ->
+                    val trigger = EdgeGestureTrigger(Edge.LEFT, gesture)
+                    put(trigger, buildFeatureForAction(action))
                 }
-                preferences.getRightEdgeAction(gesture)?.let {
-                        action -> put(
-                    EdgeGestureTrigger(
-                        Edge.RIGHT,
-                        gesture
-                    ), buildFeatureForAction(action))
+                preferences.getRightEdgeAction(gesture)?.let { action ->
+                    val trigger = EdgeGestureTrigger(Edge.RIGHT, gesture)
+                    put(trigger, buildFeatureForAction(action))
                 }
             }
         }

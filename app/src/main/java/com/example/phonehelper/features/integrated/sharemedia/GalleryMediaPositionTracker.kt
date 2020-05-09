@@ -34,7 +34,6 @@ class GalleryMediaPositionTracker(private val accessibilityService: Accessibilit
 
         when (event.eventType) {
             AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> {
-
                 onWindowContentChanged()
             }
             AccessibilityEvent.TYPE_VIEW_CLICKED -> {
