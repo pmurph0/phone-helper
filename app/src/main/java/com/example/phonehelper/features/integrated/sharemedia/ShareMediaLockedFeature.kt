@@ -17,6 +17,10 @@ import java.lang.ref.WeakReference
 
 class ShareMediaLockedFeature(accessibilityService: AccessibilityService): IntegratedFeature(accessibilityService) {
 
+    companion object {
+        private const val SHARE_BTN_CLICK_HIDE_DELAY = 120L
+    }
+
     private val isDeviceLocked: Boolean get() = keyguardManager.isDeviceLocked
     private val windowManager: WindowManager get() = accessibilityService.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private val keyguardManager get() = accessibilityService.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
@@ -111,7 +115,7 @@ class ShareMediaLockedFeature(accessibilityService: AccessibilityService): Integ
             launchShareIntent()
             it.postDelayed({
                 removeShareBtn()
-            }, 120)
+            }, SHARE_BTN_CLICK_HIDE_DELAY)
         }
     }
 
