@@ -14,7 +14,7 @@ abstract class GestureListener(context: Context) {
         private const val MOVE_DIRECTION_NONE = 0
         private const val MOVE_DIRECTION_DOWN = -1
 
-        private const val LINEAR_MOVE_RELEASE_POINT_BUFFER = 100    //TODO dip
+        private const val LINEAR_MOVE_RELEASE_POINT_BUFFER = 75f    //TODO dip
     }
 
     private val onGestureListener = object: GestureDetector.SimpleOnGestureListener() {
