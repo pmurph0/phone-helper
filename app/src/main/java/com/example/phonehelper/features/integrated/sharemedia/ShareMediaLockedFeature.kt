@@ -37,7 +37,12 @@ class ShareMediaLockedFeature(accessibilityService: AccessibilityService): Integ
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
-        galleryMediaPositionTracker?.onAccessibilityEvent(event)    //TODO un-comment
+        if (event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
+            && event.packageName == AppIds.GALLERY && isDeviceLocked) {
+            //compensates for unreliable current app change events
+            setUp()
+        }
+        galleryMediaPositionTracker?.onAccessibilityEvent(event)
     }
 
     override fun onCurrentAppChanged(appId: String) {
@@ -56,21 +61,20 @@ class ShareMediaLockedFeature(accessibilityService: AccessibilityService): Integ
     }
 
     private fun setUp() {
-        addShareBtn()
+        if (viewRef == null) {
+            addShareBtn()
+        }
         if (galleryMediaPositionTracker == null) {
             galleryMediaPositionTracker = GalleryMediaPositionTracker(accessibilityService)
-        } else {
-            log("GallerySwipeImageDetector already initialized :/")
         }
     }
 
     private fun tearDown() {
         galleryMediaPositionTracker = null
-        hideShareBtn()
-        viewRef?.clear()
+        removeShareBtn()
     }
 
-    private fun hideShareBtn() {
+    private fun removeShareBtn() {
         viewRef?.get()?.let {
             try {
                 windowManager.removeView(it)
@@ -79,6 +83,8 @@ class ShareMediaLockedFeature(accessibilityService: AccessibilityService): Integ
                 log("view not attached")
             }
         }
+        viewRef?.clear()
+        viewRef = null
     }
 
     private fun addShareBtn() {
@@ -104,7 +110,7 @@ class ShareMediaLockedFeature(accessibilityService: AccessibilityService): Integ
         view.setOnClickListener {
             launchShareIntent()
             it.postDelayed({
-                hideShareBtn()
+                removeShareBtn()
             }, 120)
         }
     }
