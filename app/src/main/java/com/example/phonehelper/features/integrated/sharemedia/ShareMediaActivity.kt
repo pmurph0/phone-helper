@@ -40,6 +40,9 @@ class ShareMediaActivity: Activity() {
                     override fun onDismissSucceeded() {
                         launchShareIntent()
                     }
+                    override fun onDismissCancelled() {
+                        finish()
+                    }
                 })
         } else {
             launchShareIntent()

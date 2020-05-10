@@ -7,5 +7,6 @@ abstract class IntegratedFeature(protected val accessibilityService: Accessibili
 
     abstract fun onServiceConnected()
     abstract fun onAccessibilityEvent(event: AccessibilityEvent)
+    abstract fun onCurrentAppChanged(appId: String)
 
 }

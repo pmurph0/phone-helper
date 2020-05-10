@@ -5,10 +5,8 @@
     android:notificationTimeout="100"
     android:packageNames="@null"
     android:canRequestTouchExplorationMode="true"
-    android:accessibilityEventTypes="typeAllMask"
+    android:accessibilityEventTypes="typeWindowContentChanged|typeWindowStateChanged|typeViewClicked"
     android:accessibilityFeedbackType="feedbackGeneric"
     android:accessibilityFlags="flagRetrieveInteractiveWindows|flagReportViewIds|flagIncludeNotImportantViews"
     android:canRetrieveWindowContent="true"
-    android:canPerformGestures="true"
-
-    />
+    android:canPerformGestures="true" />

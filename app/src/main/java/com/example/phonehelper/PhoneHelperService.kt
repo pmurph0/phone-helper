@@ -15,23 +15,20 @@ class PhoneHelperService : AccessibilityService(), EdgeOverlayViewManager.Listen
     private lateinit var integratedFeatures: List<IntegratedFeature>
     private lateinit var edgeGestureFeatures: Map<EdgeGestureTrigger, EdgeFeature>
     private lateinit var edgeOverlayViewManager: EdgeOverlayViewManager
-    private var currentApp  = ""
-        set(value) {
-            log("currentApp is $value")
-            field = value
-        }
 
     private val preferences: Preferences by lazy { Preferences(this) }
+    private val displayManager: DisplayManager get() = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
 
     private val isScreenOn: Boolean get() {
-        val dm = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-        for (display in dm.displays) {
-            if (display.state != Display.STATE_OFF) {
-                return true
-            }
-        }
-        return false
+        return displayManager.displays.any { it.state != Display.STATE_OFF }
     }
+
+    private var currentApp: String = ""
+        set(value) {
+            log("currentApp is $value")
+            integratedFeatures.forEach { it.onCurrentAppChanged(value) }
+            field = value
+        }
 
     override fun onInterrupt() {
     }
@@ -52,14 +49,13 @@ class PhoneHelperService : AccessibilityService(), EdgeOverlayViewManager.Listen
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
-        log("${event.eventType.mapToEventType()} ${event.packageName}")
-
         if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             when (event.packageName) {
                 AppIds.SYSTEM_UI -> {
                     if (!isScreenOn) currentApp = AppIds.SYSTEM_UI
                 }
-                this.packageName -> {}  //do nothing for our package //TODO ?
+                this.packageName -> {}  //do nothing for our package
+                currentApp -> {}    //do nothing if unchanged
                 else -> currentApp = event.packageName?.toString() ?: currentApp
             }
         }
@@ -68,7 +64,6 @@ class PhoneHelperService : AccessibilityService(), EdgeOverlayViewManager.Listen
             it.onAccessibilityEvent(event)
         }
     }
-
 
     override fun onEdgeGestureTriggered(edge: Edge, gesture: Gesture) {
         if (edgeGestureFeatures.keys.map { it.app }.any { app -> app == currentApp }) {

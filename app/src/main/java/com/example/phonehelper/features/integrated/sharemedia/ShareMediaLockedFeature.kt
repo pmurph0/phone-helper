@@ -31,7 +31,6 @@ class ShareMediaLockedFeature(accessibilityService: AccessibilityService): Integ
     private val shareBtnMarginRight get() = 70f.toPx(accessibilityService)
 
     private var galleryMediaPositionTracker: GalleryMediaPositionTracker? = null
-
     private var viewRef: WeakReference<View>? = null
 
     override fun onServiceConnected() {
@@ -39,26 +38,20 @@ class ShareMediaLockedFeature(accessibilityService: AccessibilityService): Integ
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         galleryMediaPositionTracker?.onAccessibilityEvent(event)    //TODO un-comment
+    }
 
-        when(event.eventType) {
-            AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
-                when (event.packageName) {
-                    AppIds.GALLERY -> {
-                        if (isDeviceLocked) {
-                            setUp()
-                        } else {
-                            reset()
-                        }
-                    }
-                    accessibilityService.applicationContext.packageName -> {
-                        //do nothing
-                    }
-                    else -> {
-                        reset()
-                    }
+    override fun onCurrentAppChanged(appId: String) {
+        when (appId) {
+            AppIds.GALLERY -> {
+                if (isDeviceLocked) {
+                    setUp()
+                } else {
+                    tearDown()
                 }
             }
-
+            else -> {
+                tearDown()
+            }
         }
     }
 
@@ -71,7 +64,7 @@ class ShareMediaLockedFeature(accessibilityService: AccessibilityService): Integ
         }
     }
 
-    private fun reset() {
+    private fun tearDown() {
         galleryMediaPositionTracker = null
         hideShareBtn()
         viewRef?.clear()
@@ -110,6 +103,9 @@ class ShareMediaLockedFeature(accessibilityService: AccessibilityService): Integ
         ))
         view.setOnClickListener {
             launchShareIntent()
+            it.postDelayed({
+                hideShareBtn()
+            }, 120)
         }
     }
 
