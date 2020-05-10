@@ -27,7 +27,7 @@
         <activity android:name="com.example.phonehelper.features.integrated.sharemedia.ShareMediaActivity" />
 
         <service
-            android:name=".AccessibilityService"
+            android:name=".PhoneHelperService"
             android:enabled="true"
             android:exported="true"
             android:label="@string/app_name"
