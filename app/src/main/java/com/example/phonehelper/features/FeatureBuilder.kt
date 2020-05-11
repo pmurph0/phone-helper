@@ -51,6 +51,7 @@ class FeatureBuilder(private val preferences: Preferences, private val accessibi
             )
             SWITCH_CAMERA -> SwitchCameraFeature(accessibilityService)
             CAMERA_CAPTURE -> CaptureImageCameraFeature(accessibilityService)
+            OPEN_NOTIFICATIONS_DRAWER -> OpenNotificationsDrawerFeature(accessibilityService)
         }
     }
 }

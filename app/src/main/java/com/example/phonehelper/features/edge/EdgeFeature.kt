@@ -8,7 +8,8 @@ enum class Gesture {
     FLING_UP,
     FLING_DOWN,
     SCRUB,
-    DOUBLE_TAP
+    DOUBLE_TAP,
+    LONG_DRAG_DOWN
 }
 enum class Edge {
     LEFT,
@@ -19,7 +20,8 @@ enum class Action {
     VOLUME_UP,
     VOLUME_DOWN,
     SWITCH_CAMERA,
-    CAMERA_CAPTURE
+    CAMERA_CAPTURE,
+    OPEN_NOTIFICATIONS_DRAWER
 }
 
 data class EdgeGestureTrigger constructor(val edge: Edge, val gesture: Gesture, val app: String)

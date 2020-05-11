@@ -4,6 +4,8 @@ import android.content.Context
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import com.example.phonehelper.log
+import kotlin.math.log
 import kotlin.math.max
 import kotlin.math.min
 
@@ -15,6 +17,8 @@ abstract class GestureListener(context: Context) {
         private const val MOVE_DIRECTION_DOWN = -1
 
         private const val LINEAR_MOVE_RELEASE_POINT_BUFFER = 75f    //TODO dip
+
+        private const val LONG_DRAG_DOWN_DISTANCE = 450f    //TODO dip
     }
 
     private val onGestureListener = object: GestureDetector.SimpleOnGestureListener() {
@@ -69,8 +73,15 @@ abstract class GestureListener(context: Context) {
         //TODO measure velocity and/or distance to determine if fling
         if (event.y < touchStartPoint) {
             onGesture(Gesture.FLING_UP)
+
         } else {
-            onGesture(Gesture.FLING_DOWN)
+            if (event.y - touchStartPoint > LONG_DRAG_DOWN_DISTANCE) {
+                log("onGesture long drag down")
+                onGesture(Gesture.LONG_DRAG_DOWN)
+            } else {
+                log("onGesture fling down")
+                onGesture(Gesture.FLING_DOWN)
+            }
         }
     }
 

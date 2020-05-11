@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.phonehelper.features.edge.Action
 import com.example.phonehelper.features.edge.Edge
 import com.example.phonehelper.features.edge.Gesture
+import com.example.phonehelper.features.edge.Gesture.*
 
 class Preferences(private val context: Context) {
 
@@ -45,26 +46,30 @@ class Preferences(private val context: Context) {
         return HashMap<String, Action>().apply {
             when (edge) {
                 Edge.LEFT -> when (gesture) {
-                    Gesture.FLING_UP -> put(AppIds.ALL_OTHER, Action.OPEN_NAV_DRAWER)
-                    Gesture.FLING_DOWN -> null  //do nothing
-                    Gesture.SCRUB -> put(AppIds.CAMERA, Action.SWITCH_CAMERA)
-                    Gesture.DOUBLE_TAP -> null  //do nothing
+                    FLING_UP -> put(AppIds.ALL_OTHER, Action.OPEN_NAV_DRAWER)
+                    FLING_DOWN -> null  //do nothing
+                    SCRUB -> put(AppIds.CAMERA, Action.SWITCH_CAMERA)
+                    DOUBLE_TAP -> null  //do nothing
+                    LONG_DRAG_DOWN -> put(AppIds.ALL_OTHER, Action.OPEN_NOTIFICATIONS_DRAWER)
                 }
                 Edge.RIGHT -> when (gesture) {
-                    Gesture.FLING_UP -> {
+                    FLING_UP -> {
                         put(AppIds.ALL_OTHER, Action.VOLUME_UP)
                         put(AppIds.CAMERA, Action.CAMERA_CAPTURE)
                     }
-                    Gesture.FLING_DOWN -> {
+                    FLING_DOWN -> {
                         put(AppIds.ALL_OTHER, Action.VOLUME_DOWN)
                         put(AppIds.CAMERA, Action.CAMERA_CAPTURE)
                     }
-                    Gesture.SCRUB -> {
+                    SCRUB -> {
                         put(AppIds.ALL_OTHER, Action.OPEN_NAV_DRAWER)
                         put(AppIds.CAMERA, Action.SWITCH_CAMERA)
                     }
-                    Gesture.DOUBLE_TAP -> {
+                    DOUBLE_TAP -> {
                         put(AppIds.ALL_OTHER, Action.OPEN_NAV_DRAWER)
+                    }
+                    LONG_DRAG_DOWN -> {
+                        put(AppIds.ALL_OTHER, Action.OPEN_NOTIFICATIONS_DRAWER)
                     }
                 }
             }
