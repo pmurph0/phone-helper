@@ -18,7 +18,7 @@ abstract class GestureListener(context: Context) {
 
         private const val LINEAR_MOVE_RELEASE_POINT_BUFFER = 75f    //TODO dip
 
-        private const val LONG_DRAG_DOWN_DISTANCE = 450f    //TODO dip
+        private const val LONG_DRAG_DOWN_DISTANCE = 440f    //TODO dip
     }
 
     private val onGestureListener = object: GestureDetector.SimpleOnGestureListener() {
