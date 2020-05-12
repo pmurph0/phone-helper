@@ -52,7 +52,7 @@ class PhoneHelperService : AccessibilityService(), EdgeOverlayViewManager.Listen
         if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             when (event.packageName) {
                 AppIds.SYSTEM_UI -> {
-                    if (!isScreenOn) currentApp = AppIds.SYSTEM_UI
+                    if (!isScreenOn) currentApp = AppIds.SYSTEM_UI  //TODO separate app ID for lock screen?
                 }
                 this.packageName -> {}  //do nothing for our package
                 currentApp -> {}    //do nothing if unchanged

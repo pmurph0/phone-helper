@@ -1,5 +1,7 @@
 package com.example.phonehelper.features.edge
 
+// An EdgeFeature is a single action that is triggered by an edge gesture.
+// The trigger is managed externally.
 interface EdgeFeature {
     fun onActionTriggered()
 }

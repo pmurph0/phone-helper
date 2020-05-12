@@ -22,11 +22,12 @@ class OpenNavDrawerFeature(private val accessibilityService: AccessibilityServic
         try {
             dispathGesture()
         } catch (e:Exception) {
-            println(e.message)
+            log(e.message)
         }
     }
 
     private fun dispathGesture() {
+        //TODO check layout for DrawerLayout first?
         accessibilityService.dispatchGesture(
             buildTwoFingerSwipeGesture(),
             object : AccessibilityService.GestureResultCallback() {
