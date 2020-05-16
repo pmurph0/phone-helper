@@ -57,20 +57,8 @@ fun AccessibilityService.logAllViews() {
 }
 
 fun AccessibilityService.clickView(id: String): Boolean {
-
-    fun clickView(node: AccessibilityNodeInfo): Boolean {
-        if (node.viewIdResourceName == id) {
-            return node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-        }
-        log("${node.className} ${node.viewIdResourceName}")
-        for (i in 0 until node.childCount) {
-            val childNode = node.getChild(i)
-            if (clickView(childNode)) return true
-        }
-        return false
-    }
-
-    return clickView(rootInActiveWindow)
+    return (rootInActiveWindow.findAccessibilityNodeInfosByViewId(id)?.firstOrNull() ?: return false)
+        .performAction(AccessibilityNodeInfo.ACTION_CLICK)
 }
 
 fun Int.mapToEventType(): String {
