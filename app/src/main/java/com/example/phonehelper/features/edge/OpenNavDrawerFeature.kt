@@ -5,6 +5,7 @@ import android.accessibilityservice.GestureDescription
 import android.graphics.Path
 import com.example.phonehelper.Preferences
 import com.example.phonehelper.log
+import com.example.phonehelper.screenSize
 import com.example.phonehelper.toPx
 import java.util.concurrent.TimeUnit
 
@@ -13,7 +14,7 @@ class OpenNavDrawerFeature(private val accessibilityService: AccessibilityServic
 
     private val gestureStartDelay = 0L
     private val gestureDuration = TimeUnit.MILLISECONDS.toMillis(150L)
-    private val gestureEndX get() = 700f.toPx(accessibilityService).toFloat()
+    private val gestureEndX get() = (accessibilityService.screenSize.width * 0.375f).toPx(accessibilityService).toFloat()
     private val finger1YPos get() = 300f.toPx(accessibilityService).toFloat()
     private val finger2YPos get() = 500f.toPx(accessibilityService).toFloat()
     private val gestureStartX get() = preferences.leftEdgeWidth.toFloat()
@@ -57,6 +58,7 @@ class OpenNavDrawerFeature(private val accessibilityService: AccessibilityServic
             Path().apply {
                 this.moveTo(gestureStartX, finger1YPos)
                 this.lineTo(gestureEndX, finger1YPos)
+
             },
             gestureStartDelay,
             TimeUnit.MILLISECONDS.toMillis(gestureDuration)
