@@ -36,6 +36,8 @@ class PhoneHelperService : AccessibilityService(), EdgeOverlayViewManager.Listen
     override fun onServiceConnected() {
         super.onServiceConnected()
 
+        preferences.init()
+
         edgeOverlayViewManager = EdgeOverlayViewManager(this, preferences, this)
         edgeOverlayViewManager.addEdgeOverlayViews()
 

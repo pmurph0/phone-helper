@@ -26,4 +26,5 @@ enum class Action {
     OPEN_NOTIFICATIONS_DRAWER
 }
 
+
 data class EdgeGestureTrigger constructor(val edge: Edge, val gesture: Gesture, val app: String)

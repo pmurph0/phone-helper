@@ -91,3 +91,5 @@ fun Int.mapToEventType(): String {
         else -> "UNKNOWN"
     }
 }
+
+fun <F, S> pairOf(first: F, second: S) = Pair(first, second)
