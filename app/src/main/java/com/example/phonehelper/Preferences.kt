@@ -57,11 +57,11 @@ class Preferences(private val context: Context) {
             return "${edge.storageKey}_${gesture.storageKey}"
         }
 
-        fun SharedPreferences.Editor.putHashMap(key: String, map: Map<String, String>) {
+        private fun SharedPreferences.Editor.putHashMap(key: String, map: Map<String, String>) {
             putString(key, JSONObject(map).toString())
         }
 
-        fun SharedPreferences.getHashMap(key: String): Map<String, String> {
+        private fun SharedPreferences.getHashMap(key: String): Map<String, String> {
             val outMap = hashMapOf<String, String>()
             val mapString = getString(key, JSONObject().toString())!!
             val jsonMap = JSONObject(mapString)
@@ -70,6 +70,16 @@ class Preferences(private val context: Context) {
             }
             return outMap
         }
+
+        private fun Map<String, String>.toStringActionMap(): Map<String, Action> {
+            return HashMap<String, Action>().also { stringActionMap ->
+                keys.forEach { key ->
+                    val action = actionFromValue(get(key) ?: "")
+                    if (action != null) stringActionMap[key] = action
+                }
+            }
+        }
+
     }
 
 
@@ -107,21 +117,24 @@ class Preferences(private val context: Context) {
         get() = 0   //TODO
 
     fun init() {
-        if (sharedPreferences.all.isEmpty()) {
+//        if (sharedPreferences.all.isEmpty()) {
             putDefaultValues()
-        }
+//        }
     }
 
     private fun putDefaultValues() {
         sharedPreferences.edit().apply {
             putHashMap(getKey(RIGHT, FLING_UP), mapOf(
-                pairOf(AppIds.ALL_OTHER, VOLUME_UP.storageValue)
+                pairOf(AppIds.ALL_OTHER, VOLUME_UP.storageValue),
+                pairOf(AppIds.CAMERA, CAMERA_CAPTURE.storageValue)
             ))
             putHashMap(getKey(RIGHT, FLING_DOWN), mapOf(
-                pairOf(AppIds.ALL_OTHER, VOLUME_DOWN.storageValue)
+                pairOf(AppIds.ALL_OTHER, VOLUME_DOWN.storageValue),
+                pairOf(AppIds.CAMERA, CAMERA_CAPTURE.storageValue)
             ))
             putHashMap(getKey(RIGHT, SCRUB), mapOf(
-                pairOf(AppIds.ALL_OTHER, OPEN_NAV_DRAWER.storageValue)
+                pairOf(AppIds.ALL_OTHER, OPEN_NAV_DRAWER.storageValue),
+                pairOf(AppIds.CAMERA, SWITCH_CAMERA.storageValue)
             ))
             putHashMap(getKey(RIGHT, LONG_DRAG_DOWN), mapOf(
                 pairOf(AppIds.ALL_OTHER, OPEN_NOTIFICATIONS_DRAWER.storageValue)
@@ -129,55 +142,16 @@ class Preferences(private val context: Context) {
             putHashMap(getKey(LEFT, FLING_UP), mapOf(
                 pairOf(AppIds.ALL_OTHER, OPEN_NAV_DRAWER.storageValue)
             ))
+            putHashMap(getKey(LEFT, LONG_DRAG_DOWN), mapOf(
+                pairOf(AppIds.ALL_OTHER, OPEN_NOTIFICATIONS_DRAWER.storageValue)
+            ))
 
             apply()
         }
     }
 
-    fun Map<String, String>.toStringActionMap(): Map<String, Action> {
-        return HashMap<String, Action>().also { stringActionMap ->
-            keys.forEach { key ->
-                val action = actionFromValue(get(key) ?: "")
-                if (action != null) stringActionMap[key] = action
-            }
-        }
-    }
-
-
     fun getActionForEdge(edge: Edge, gesture: Gesture): Map<String, Action>? {
         return sharedPreferences.getHashMap(getKey(edge, gesture)).toStringActionMap()
-
-//        return HashMap<String, Action>().apply {
-//            when (edge) {
-//                LEFT -> when (gesture) {
-//                    FLING_UP -> put(AppIds.ALL_OTHER, OPEN_NAV_DRAWER)
-//                    FLING_DOWN -> null  //do nothing
-//                    SCRUB -> put(AppIds.CAMERA, SWITCH_CAMERA)
-//                    DOUBLE_TAP -> null  //do nothing
-//                    LONG_DRAG_DOWN -> put(AppIds.ALL_OTHER, OPEN_NOTIFICATIONS_DRAWER)
-//                }
-//                RIGHT -> when (gesture) {
-//                    FLING_UP -> {
-//                        put(AppIds.ALL_OTHER, VOLUME_UP)
-//                        put(AppIds.CAMERA, CAMERA_CAPTURE)
-//                    }
-//                    FLING_DOWN -> {
-//                        put(AppIds.ALL_OTHER, VOLUME_DOWN)
-//                        put(AppIds.CAMERA, CAMERA_CAPTURE)
-//                    }
-//                    SCRUB -> {
-//                        put(AppIds.ALL_OTHER, OPEN_NAV_DRAWER)
-//                        put(AppIds.CAMERA, SWITCH_CAMERA)
-//                    }
-//                    DOUBLE_TAP -> {
-//                        put(AppIds.ALL_OTHER, OPEN_NAV_DRAWER)
-//                    }
-//                    LONG_DRAG_DOWN -> {
-//                        put(AppIds.ALL_OTHER, OPEN_NOTIFICATIONS_DRAWER)
-//                    }
-//                }
-//            }
-//        }
 
     }
 

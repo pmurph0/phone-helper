@@ -2,4 +2,7 @@
     <string name="app_name">One-hand Helper</string>
     <string name="label_share">Share</string>
     <string name="label_preview">Preview</string>
+    <string name="permission_required">Action Required</string>
+    <string name="you_must_enable_accessibility_service">You must enable PhoneHelper in accessibility settings for the app to function. When you\'re done, you can return to the app using the back button.</string>
+    <string name="cta_go_to_settings">Go to settings</string>
 </resources>

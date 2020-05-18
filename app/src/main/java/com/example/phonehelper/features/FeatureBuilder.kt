@@ -25,7 +25,7 @@ class FeatureBuilder(private val preferences: Preferences, private val accessibi
     fun buildEdgeFeatures(): Map<EdgeGestureTrigger, EdgeFeature> {
         return HashMap<EdgeGestureTrigger, EdgeFeature>().apply {
             Edge.values().forEach { edge ->
-                Gesture.values().forEach {gesture ->
+                Gesture.values().forEach { gesture ->
                     preferences.getActionForEdge(edge, gesture)?.let { appActionMap ->
                         appActionMap.keys.forEach { app ->
                             val trigger = EdgeGestureTrigger(edge, gesture, app)
