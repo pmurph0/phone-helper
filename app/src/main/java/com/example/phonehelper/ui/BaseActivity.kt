@@ -12,6 +12,7 @@ import android.content.pm.ServiceInfo
 import android.provider.Settings
 import android.view.accessibility.AccessibilityManager
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.phonehelper.PhoneHelperService
@@ -19,7 +20,7 @@ import com.example.phonehelper.R
 
 
 @SuppressLint("Registered")
-abstract class BaseActivity: Activity() {
+abstract class BaseActivity: AppCompatActivity() {
 
     companion object {
         const val REQ_CODE_PERMISSIONS = 437894723
